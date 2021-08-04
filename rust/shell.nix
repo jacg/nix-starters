@@ -13,10 +13,10 @@ let
   nixpkgs-url = "https://github.com/nixos/nixpkgs/archive/${nixpkgs-commit-id}.tar.gz";
   oxalica-commit-id = "53b758596e8bd17e9fc764e14ba3e7686030bad3";
   pkgs = import (fetchTarball nixpkgs-url) {
-      overlays = map (uri: import (fetchTarball uri)) [
-        "https://github.com/oxalica/rust-overlay/archive/${oxalica-commit-id}.tar.gz"
-      ];
-    };
+    overlays = map (uri: import (fetchTarball uri)) [
+      "https://github.com/oxalica/rust-overlay/archive/${oxalica-commit-id}.tar.gz"
+    ];
+  };
 
   # ----- Rust versions and extensions --------------------------------------------------------------
   extras = {

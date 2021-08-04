@@ -1,3 +1,8 @@
+# TODO HDF5
+# TODO bindgen
+# TODO PyO3
+# TODO nixGL
+
 # To get a more recent version of nixpkgs, go to https://status.nixos.org/,
 # which lists the latest commit that passes all the tests for any release.
 # Unless there is an overriding reason, pick the latest stable NixOS release, at

@@ -1,0 +1,29 @@
+name: Test
+on:
+  pull_request:
+  push:
+jobs:
+
+  Rust:
+    if: "! contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.allow-fail }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-10.15]
+        allow-fail: [false]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: cachix/install-nix-action@v13
+        with:
+          nix_path: nixpkgs=channel:nixos-21.05
+      - uses: Swatinem/rust-cache@v1
+      - run: nix-shell
+      - run: nix-shell --run "cd rust && cargo test"
+
+# TODO Rust bindgen
+# TODO Rust PyO3
+# TODO Python
+# TODO home manager
+# TODO C++ with clang support

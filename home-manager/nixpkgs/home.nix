@@ -5,11 +5,21 @@
 let
   sources = import ../sources.nix;
   pkgs = sources.pkgs;
+  p10k-theme = "${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
   link = config.lib.file.mkOutOfStoreSymlink;
 in
 
 {
   home.file.".config/nixpkgs"  .source = link ../nixpkgs;
+
+  home.file.".zprofile"               .source = link ../zsh/zprofile;
+  home.file.".zshrc"                  .source = link ../zsh/zshrc;
+  home.file.".zshrc.pre"              .source = link ../zsh/pre;
+  home.file.".zshrc.local"            .source = link ../zsh/local;
+  home.file.".p10k.zsh"               .source = link ../zsh/p10k.zsh;
+  home.file.".nixdls/p10k.zsh-theme"  .source = p10k-theme;
+  home.file.".nixdls/zsh-sh"          .source = sources.zsh-syntax-highlighting;
+  home.file.".nixdls/zsh-as"          .source = sources.zsh-autosuggestions;
 
   nixpkgs.config.allowUnfree = true;
 

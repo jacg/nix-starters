@@ -28,9 +28,22 @@ let
   # # `path` is required for `home-manager` to find its own sources
   # in pkgs.callPackage "${src}/home-manager" { path = "${src}"; };
 
+  zsh-syntax-highlighting = let
+    version = "0.7.1";
+    url-template = "https://github.com/zsh-users/zsh-syntax-highlighting/archive/${version}.tar.gz";
+  in builtins.fetchTarball { url = url-template; };
+
+  zsh-autosuggestions = let
+    version = "v0.7.0";
+    url-template = "https://github.com/zsh-users/zsh-autosuggestions/archive/${version}.tar.gz";
+  in builtins.fetchTarball { url = url-template; };
+
 in
 
 {
   pkgs         = pkgs;
   home-manager = home-manager;
+
+  zsh-syntax-highlighting = zsh-syntax-highlighting;
+  zsh-autosuggestions     = zsh-autosuggestions;
 }

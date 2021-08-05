@@ -27,6 +27,8 @@ let
 
   buildInputs = [
     pypkgs.pytest
+    pypkgs.numpy
+    # TODO gitignore __pycache__
   ];
 
 in

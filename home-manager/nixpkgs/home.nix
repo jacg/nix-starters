@@ -11,6 +11,8 @@ in
 {
   home.file.".config/nixpkgs"  .source = link ../nixpkgs;
 
+  nixpkgs.config.allowUnfree = true;
+
   programs.direnv.enable            = true;
   programs.direnv.nix-direnv.enable = true;
 

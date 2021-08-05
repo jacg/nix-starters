@@ -11,7 +11,7 @@
 }:
 
 let
-  # ----- Pinned nixpkgs with -----------------------------------------------------------------------
+  # ----- Pinned nixpkgs ----------------------------------------------------------------------------
 
   nixpkgs-commit-id = "d4590d21006387dcb190c516724cb1e41c0f8fdf"; # nixos-21.05 on 2021-08-03
   nixpkgs-url = "https://github.com/nixos/nixpkgs/archive/${nixpkgs-commit-id}.tar.gz";

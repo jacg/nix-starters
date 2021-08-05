@@ -48,7 +48,7 @@ in
 
   programs.htop = {
     enable = true;
-    cpuCountFromZero = true;
+    settings.cpu_count_from_zero = true;
   };
 
 }

@@ -22,4 +22,9 @@ in
     pkgs.bat
   ];
 
+  programs.htop = {
+    enable = true;
+    cpuCountFromZero = true;
+  };
+
 }

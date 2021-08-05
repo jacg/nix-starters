@@ -33,6 +33,6 @@ let
 in
 
 pkgs.mkShell {
-  name = "my-rust-project";
+  name = "my-python-project";
   buildInputs = buildInputs;
 }

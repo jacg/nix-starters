@@ -16,10 +16,34 @@ in
   programs.direnv.enable            = true;
   programs.direnv.nix-direnv.enable = true;
 
-  home.packages = [
+  home.packages = with pkgs; [
     sources.home-manager
-    pkgs.cowsay
-    pkgs.bat
+    ripgrep  ripgrep-all  # better grep + find
+    fd                    # better find
+    bat                   # better cat
+    du-dust               # better du
+    exa                   # better ls
+    tldr                  # alternative to drinking from `man` fire hose
+
+    # Variations on the theme of `top`
+    procs bottom zenith # htop: installed and configured by HM further down
+
+    just        # recipe / command runner
+    hyperfine   # benchmarking
+    delta       # better diffs
+    skim        # fuzzy finder
+    rlwrap      # add readline capabilities to crappy shells
+    mosh        # more robust alternative to ssh
+    sd          # intuitive find and replace CLI
+
+    git git-lfs github-cli
+
+    # Golden oldies
+    file lsof
+    wget curl
+    tmux
+    rsync
+
   ];
 
   programs.htop = {

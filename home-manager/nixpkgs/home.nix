@@ -16,6 +16,8 @@ in
   programs.direnv.enable            = true;
   programs.direnv.nix-direnv.enable = true;
 
+  programs.zsh.enable = true;
+
   home.packages = with pkgs; [
     sources.home-manager
     ripgrep  ripgrep-all  # better grep + find

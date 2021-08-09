@@ -1,0 +1,61 @@
+[user]
+  name  = Jacek Generowicz
+  email = jacg@my-post-office.net
+
+[core]
+  editor = emacsclient -c
+  #whitespace = "trailing-space,space-before-tab";
+
+[rerere]
+  enabled = 1
+
+[alias]
+  authors  = "log --pretty=format:%aN | sort | uniq -c | sort -rn"
+  wdiff    = diff --color-words
+  lg       = log --graph --decorate --oneline
+  lga      = log --graph --decorate --oneline --all
+  man      = ls-tree -r --name-only --full-tree HEAD
+  manifest = man
+  st       = status
+
+  # git change-commits GIT_COMMITTER_NAME "old name" "new name" [first..last]
+  change-commits = !f() { VAR=$1; OLD=$2; NEW=$3; shift 3; git filter-branch --env-filter \"if [[ \\\"$`echo $VAR`\\\" = '$OLD' ]]; then export $VAR='$NEW'; fi\" $@; }; f
+  # from https://help.github.com/articles/remove-sensitive-data
+  remove-file = !f() { git filter-branch -f --index-filter \"git rm --cached --ignore-unmatch $1\" --prune-empty --tag-name-filter cat -- --all; }; f
+
+[pager]
+    diff   = delta
+    log    = delta
+    reflog = delta
+    show   = delta
+
+[interactive]
+    diffFilter = delta --color-only --features=interactive
+
+[delta]
+    features = decorations
+
+[delta "interactive"]
+    keep-plus-minus-markers = false
+
+[delta "decorations"]
+    #commit-decoration-style = blue ol
+    #commit-style = raw
+    #file-style = omit
+    #hunk-header-decoration-style = blue box
+    #hunk-header-file-style = red
+    hunk-header-line-number-style = "#067a00"
+    hunk-header-style = file line-number syntax
+    navigate = true
+
+[interactive]
+    diffFilter = delta --color-only
+
+[github]
+    user = jacg
+
+[mergetool]
+    keepBackup = 1
+
+[pull]
+    rebase = 1

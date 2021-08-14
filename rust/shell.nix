@@ -31,6 +31,29 @@ let
       "rls-preview"   # What do *-preview offer?
       "rustfmt-preview"
       "clippy-preview"
+
+      # All available as of 2021-08-03
+      # "cargo"
+      # "clippy"
+      # "clippy-preview"
+      # "llvm-tools-preview"
+      # "miri"
+      # "miri-preview"
+      # "reproducible-artifacts"
+      # "rls"
+      # "rls-preview"
+      # "rust-analysis"
+      # "rust-analyzer-preview"
+      # "rust-docs"
+      # "rust-mingw"
+      # "rust-src"
+      # "rust-std"
+      # "rustc"
+      # "rustc-dev"
+      # "rustc-docs"
+      # "rustfmt"
+      # "rustfmt-preview"
+
     ];
     #targets = [ "arg-unknown-linux-gnueabihf" ];
   };

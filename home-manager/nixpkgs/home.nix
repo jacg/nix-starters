@@ -8,6 +8,8 @@ let
   p10k-theme = "${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
   link = config.lib.file.mkOutOfStoreSymlink;
 
+  # NB these aren't actually used. They are set in `../gitconfig` MAKE SURE THAT
+  # YOU EDIT THAT FILE before deploying this configuration!
   myName     = "Jacek Generowicz";
   myGitEmail = "jacg@my-post-office.net";
 

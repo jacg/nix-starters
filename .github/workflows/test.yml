@@ -28,8 +28,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-10.15]
-        allow-fail: [true]
+        os: [ubuntu-latest]
+        allow-fail: [false]
     steps:
       - uses: actions/checkout@v2
       - uses: cachix/install-nix-action@v13

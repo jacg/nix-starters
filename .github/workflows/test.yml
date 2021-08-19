@@ -35,7 +35,6 @@ jobs:
       - uses: cachix/install-nix-action@v13
         with:
           nix_path: nixpkgs=channel:nixos-21.05
-      - uses: Swatinem/rust-cache@v1
       - run: nix-shell julia/shell.nix --run "cd julia && julia --color=yes testme.jl"
 
   Python:
@@ -60,7 +59,6 @@ jobs:
       - uses: cachix/install-nix-action@v13
         with:
           nix_path: nixpkgs=channel:nixos-21.05
-      - uses: Swatinem/rust-cache@v1
       - run: nix-shell python/shell.nix --run "cd python && pytest --color=yes -v"
 
 

@@ -39,6 +39,8 @@ home-manager allows you to reproduce your arbitrarily complex personal toolset a
 
 **BEWARE** the git config has contains my name and email address! So make sure to edit `home-manager/gitconfig` before deploying.
 
+See `home-manager/README.md` for details.
+
 ## Flakes
 
 + At present flakes are too painful to work with for Nix non-experts (the target audience).

@@ -38,6 +38,8 @@ let
       ];
     };
 in {
+  julia_17 =
+    makeJulia "1.7.0-beta3" "sha256-2WC5y2jMWOBl0PAwPhCA7vxpS33JF5BDrOa8nKfUscc=";
   julia_16 =
     makeJulia "1.6.2" "sha256-PrS1d1sN8a049sQJ6YlQGrRFyVvLAasCvWD1vR6CMkA=";
   julia_15 =

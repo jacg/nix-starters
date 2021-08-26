@@ -30,6 +30,9 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         allow-fail: [false]
+        include:
+          - os: macos-10.15
+            allow-fail: true
     steps:
       - uses: actions/checkout@v2
       - uses: cachix/install-nix-action@v13

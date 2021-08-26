@@ -14,17 +14,11 @@ let
     overlays = map (uri: import (fetchTarball uri)) [];
   };
 
-  fhsCommand = pkgs.callPackage ./scientific-fhs {
-    juliaVersion = "julia_16";
-  };
-
 in
 
 pkgs.mkShell {
   pname = "julia-devel";
   buildInputs = [
-    pkgs.git
-    (fhsCommand "julia" "julia")
-    (fhsCommand "julia-bash" "bash")
+    pkgs.julia_16-bin
   ];
 }

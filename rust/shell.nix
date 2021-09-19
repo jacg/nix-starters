@@ -14,9 +14,9 @@
 let
   # ----- Pinned nixpkgs with pinned oxalica Rust overlay -------------------------------------------
 
-  nixpkgs-commit-id = "871e8c4d585ff2a9eb200dcbd96e3856775807b9"; # nixos-21.05 on 2021-08-24
+  nixpkgs-commit-id = "6120ac5cd201f6cb593d1b80e861be0342495be9"; # nixos-21.05 on 2021-09-17
   nixpkgs-url = "https://github.com/nixos/nixpkgs/archive/${nixpkgs-commit-id}.tar.gz";
-  oxalica-commit-id = "53b758596e8bd17e9fc764e14ba3e7686030bad3";
+  oxalica-commit-id = "f72d85edf34b3ca7a07d6fe6c1ac97c31aed28ed";
   pkgs = import (fetchTarball nixpkgs-url) {
     overlays = map (uri: import (fetchTarball uri)) [
       "https://github.com/oxalica/rust-overlay/archive/${oxalica-commit-id}.tar.gz"
@@ -63,9 +63,9 @@ let
   rust-tcfile  = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain;
 
   rust-latest  = pkgs.rust-bin.stable .latest      .default;
-  rust-beta    = pkgs.rust-bin.beta   ."2021-08-24".default;
-  rust-nightly = pkgs.rust-bin.nightly."2021-08-24".default;
-  rust-stable  = pkgs.rust-bin.stable ."1.54.0"    .default;
+  rust-beta    = pkgs.rust-bin.beta   ."2021-09-18".default;
+  rust-nightly = pkgs.rust-bin.nightly."2021-09-18".default;
+  rust-stable  = pkgs.rust-bin.stable ."1.55.0"    .default;
 
   # Rust system to be used in buldiInputs. Choose between
   # latest/beta/nightly/stable on the next line

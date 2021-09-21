@@ -7,7 +7,7 @@
 # the time of writing this is nixos-21.05.
 
 {
-  py ? "38" # To override the default python version:  nix-shell shell.nix --argstr py 37
+  py ? "39" # To override the default python version:  nix-shell shell.nix --argstr py 37
 }:
 
 let

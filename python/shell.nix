@@ -21,13 +21,14 @@ let
 
   # ----- Python version ----------------------------------------------------------------------------
   python = builtins.getAttr ("python" + py) pkgs;
-  pypkgs = python.pkgs;
 
   # ----- Choice of included packages ---------------------------------------------------------------
 
   buildInputs = [
-    pypkgs.pytest
-    pypkgs.numpy
+    (python.withPackages (ps: [
+      ps.pytest
+      ps.numpy
+    ]))
   ];
 
 in

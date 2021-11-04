@@ -14,7 +14,7 @@
 let
   # ----- Pinned nixpkgs with pinned oxalica Rust overlay -------------------------------------------
 
-  nixpkgs-commit-id = "6120ac5cd201f6cb593d1b80e861be0342495be9"; # nixos-21.05 on 2021-09-17
+  nixpkgs-commit-id = "2fd5c69fa6057870687a6589a8c95da955188f91"; # nixos-21.05 on 2021-11-02
   nixpkgs-url = "https://github.com/nixos/nixpkgs/archive/${nixpkgs-commit-id}.tar.gz";
   oxalica-commit-id = "f72d85edf34b3ca7a07d6fe6c1ac97c31aed28ed";
   pkgs = import (fetchTarball nixpkgs-url) {

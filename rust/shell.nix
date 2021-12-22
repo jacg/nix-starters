@@ -16,7 +16,7 @@ let
 
   nixpkgs-commit-id = "a0899f066572bb498ea3b4939d27743fd3e78364"; # nixos-21.11 on 2021-12-21
   nixpkgs-url = "https://github.com/nixos/nixpkgs/archive/${nixpkgs-commit-id}.tar.gz";
-  oxalica-commit-id = "f0a37690fae87b08c3e42c14e209d78fa164d820";
+  oxalica-commit-id = "1efeb891b85c70ded412eb78a04bccb9badb14c6";
   pkgs = import (fetchTarball nixpkgs-url) {
     overlays = map (uri: import (fetchTarball uri)) [
       "https://github.com/oxalica/rust-overlay/archive/${oxalica-commit-id}.tar.gz"
@@ -63,9 +63,9 @@ let
   rust-tcfile  = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain;
 
   rust-latest  = pkgs.rust-bin.stable .latest      .default;
-  rust-beta    = pkgs.rust-bin.beta   ."2021-11-03".default;
-  rust-nightly = pkgs.rust-bin.nightly."2021-11-03".default;
-  rust-stable  = pkgs.rust-bin.stable ."1.56.0"    .default;
+  rust-beta    = pkgs.rust-bin.beta   ."2021-12-21".default;
+  rust-nightly = pkgs.rust-bin.nightly."2021-12-21".default;
+  rust-stable  = pkgs.rust-bin.stable ."1.57.0"    .default;
 
   # Rust system to be used in buldiInputs. Choose between
   # latest/beta/nightly/stable on the next line

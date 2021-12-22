@@ -13,7 +13,7 @@
 let
   # ----- Pinned nixpkgs ----------------------------------------------------------------------------
 
-  nixpkgs-commit-id = "2fd5c69fa6057870687a6589a8c95da955188f91"; # nixos-21.05 on 2021-11-02
+  nixpkgs-commit-id = "a0899f066572bb498ea3b4939d27743fd3e78364"; # nixos-21.11 on 2021-12-21
   nixpkgs-url = "https://github.com/nixos/nixpkgs/archive/${nixpkgs-commit-id}.tar.gz";
   pkgs = import (fetchTarball nixpkgs-url) {
       overlays = map (uri: import (fetchTarball uri)) [];

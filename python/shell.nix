@@ -22,13 +22,15 @@ let
   # ----- Python version ----------------------------------------------------------------------------
   python = builtins.getAttr ("python" + py) pkgs;
 
-  # ----- Choice of included packages ---------------------------------------------------------------
-
-  buildInputs = [
-    (python.withPackages (ps: [
+  # ----- A Python interpreter with the packages that interest us -----------------------------------
+  python-with-all-my-packages = (python.withPackages (ps: [
       ps.pytest
       ps.numpy
-    ]))
+    ]));
+
+  # ----- Choice of included packages ---------------------------------------------------------------
+  buildInputs = [
+    python-with-all-my-packages
   ];
 
 in

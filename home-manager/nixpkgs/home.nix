@@ -16,8 +16,7 @@ let
 in
 
 {
-  home.file.".config/nixpkgs"  .source = link ../nixpkgs;
-
+  home.file.".config/nixpkgs"         .source = link ../nixpkgs;
   home.file.".zprofile"               .source = link ../zsh/zprofile;
   home.file.".zshrc"                  .source = link ../zsh/zshrc;
   home.file.".zshrc.pre"              .source = link ../zsh/pre;

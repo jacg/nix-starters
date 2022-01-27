@@ -8,7 +8,7 @@
 let
   # ----- Pinned nixpkgs  ---------------------------------------------------------------------------
 
-  nixpkgs-commit-id = "a0899f066572bb498ea3b4939d27743fd3e78364"; # nixos-21.11 on 2021-12-21
+  nixpkgs-commit-id = "604c44137d97b5111be1ca5c0d97f6e24fbc5c2c"; # nixos-21.11 on 2022-01-24
   nixpkgs-url = "https://github.com/nixos/nixpkgs/archive/${nixpkgs-commit-id}.tar.gz";
   pkgs = import (fetchTarball nixpkgs-url) {
     overlays = map (uri: import (fetchTarball uri)) [];
@@ -19,6 +19,6 @@ in
 pkgs.mkShell {
   pname = "julia-devel";
   buildInputs = [
-    pkgs.julia_16-bin
+    pkgs.julia-bin
   ];
 }

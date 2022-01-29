@@ -22,7 +22,7 @@ jobs:
       - name: Test in nix-shell
         run: nix-shell rust/shell.nix --run "cd rust && cargo test --color=always"
       - name: Test in nix develop
-        run: cd rust && nix --extra-experimental-features nix-command --extra-experimental-features flakes develop -c cargo test --color="always"
+        run: cd rust && nix --extra-experimental-features nix-command --extra-experimental-features flakes develop -c cargo test --color=always
 
   Julia:
     if: "! contains(github.event.head_commit.message, '[skip ci]')"

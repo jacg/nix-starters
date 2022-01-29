@@ -1,3 +1,8 @@
+# TODO HDF5
+# TODO bindgen
+# TODO PyO3
+# TODO nixGL
+
 {
   description = "Rust development environment";
 

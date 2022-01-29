@@ -3,31 +3,12 @@
 
   inputs = {
 
-    nixpkgs = {
-      type = "github";
-      owner = "nixos";
-      repo = "nixpkgs";
-      ref = "6c4b9f1a2fd761e2d384ef86cff0d208ca27fdca"; # nixos-21.11 on 2022-01-27
-    };
-
-    rust-overlay = {
-      type = "github";
-      owner = "oxalica";
-      repo = "rust-overlay";
-      ref = "9fb49daf1bbe1d91e6c837706c481f9ebb3d8097"; # 2022-01-22
-    };
-
-    flake-utils = {
-      type = "github";
-      owner = "numtide";
-      repo = "flake-utils";
-      # ref = TODO pinme!
-    };
-
+    nixpkgs     .url = "github:nixos/nixpkgs/nixos-21.11";
+    rust-overlay.url = "github:oxalica/rust-overlay";
+    flake-utils .url = "github:numtide/flake-utils";
     flake-compat = {
       url = "github:edolstra/flake-compat";
       flake = false;
-      # ref = TODO pinme!
     };
 
   };

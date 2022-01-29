@@ -67,7 +67,10 @@ jobs:
       - uses: cachix/install-nix-action@v13
         with:
           nix_path: nixpkgs=channel:nixos-21.11
-      - run: nix-shell python/shell.nix --argstr py ${{ matrix.py }} --run 'cd python && pytest --color=yes -v'
+      - name: Test in nix develop
+        run: cd python && nix --extra-experimental-features nix-command --extra-experimental-features flakes develop -c pytest --color=yes -v
+      - name: Test in nix-shell
+        run: nix-shell python/shell.nix --argstr py ${{ matrix.py }} --run 'cd python && pytest --color=yes -v'
 
 # TODO Rust bindgen
 # TODO Rust PyO3

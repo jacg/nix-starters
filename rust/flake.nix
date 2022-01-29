@@ -1,3 +1,6 @@
+# The core functionality is provided here using flakes. Legacy support for
+# `nix-shell` is provided by a wrapper in `shell.nix`.
+
 # TODO HDF5
 # TODO bindgen
 # TODO PyO3

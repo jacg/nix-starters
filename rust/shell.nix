@@ -1,3 +1,5 @@
+# Adapts flake.nix to support legacy `nix-shell`
+
 (import
   (
     let

@@ -26,22 +26,32 @@ let
   # ----- Rust versions and extensions --------------------------------------------------------------
   extras = {
     extensions = [
-      "rust-analysis" # Rust Language Server (RLS)
-      "rust-src"      # Needed by RLS? or only rust-analyzer?
-      "rls-preview"   # What do *-preview offer?
-      "rustfmt-preview"
-      "clippy-preview"
 
-      # All available as of 2021-08-03
-      # "cargo"
-      # "clippy"
-      # "clippy-preview"
+      # Uncomment the extensions you want to enable, in the list below. Some are
+      # enabled by default.
+
+      # A history of available extensions is published on
+      #
+      #    https://rust-lang.github.io/rustup-components-history
+      #
+      # but this appears to contradict reality. To get an error message which
+      # lists all available components, uncomment the following line
+
+      #  "does-not-exist" # Uncomment this line to generate list of extensions
+
+      # Extensions which might be available. Uncomment those you want to enable.
+      # Some are enabled by default.
+
+      # "cargo"                    # enabled by default
+      # "clippy"                   # enabled by default
+      # "clippy-preview"           # seems to give the same version as clippy
       # "llvm-tools-preview"
       # "miri"
       # "miri-preview"
       # "reproducible-artifacts"
       # "rls"
-      # "rls-preview"
+      # "rls-preview"              # seems to give the same version as rls
+      # "rust"
       # "rust-analysis"
       # "rust-analyzer-preview"
       # "rust-docs"

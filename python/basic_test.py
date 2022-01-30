@@ -13,6 +13,6 @@ def test_nonstandard_module():
 def test_version():
     import sys
     vi = sys.version_info
-    found = f'{vi.major}{vi.minor}'
+    found = f'python{vi.major}{vi.minor}'
     expected = os.getenv('EXPECTED_PY')
     assert(found == expected)

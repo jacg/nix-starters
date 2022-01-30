@@ -25,15 +25,19 @@
     flake-utils.lib.eachSystem ["x86_64-linux" "i686-linux" "aarch64-linux" ] # Not "x86_64-darwin"
       (system:
 
-      let pkgs = import nixpkgs { inherit system; };
-      in
-        {
-          devShell = pkgs.mkShell {
-            name = "my-julia-project";
-            buildInputs = [
-              pkgs.julia-bin
-            ];
-          };
-        }
-    );
+        let pkgs = import nixpkgs {
+              inherit system;
+              # Any overlays you need can go here
+              overlays = [];
+            };
+        in
+          {
+            devShell = pkgs.mkShell {
+              name = "my-julia-project";
+              buildInputs = [
+                pkgs.julia-bin
+              ];
+            };
+          }
+      );
 }

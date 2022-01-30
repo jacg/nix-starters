@@ -28,22 +28,26 @@
     # flake-utils.lib.eachSystem ["x86_64-linux" "i686-linux" "aarch64-linux" "x86_64-darwin"]
       (system:
 
-      let pkgs = import nixpkgs { inherit system; };
-          python = pkgs.python39;
+        let pkgs = import nixpkgs {
+              inherit system;
+              # Any overlays you need can go here
+              overlays = [];
+            };
+            python = pkgs.python39;
 
-          # ----- A Python interpreter with the packages that interest us -------
-          python-with-all-my-packages = (python.withPackages (ps: [
-            ps.pytest
-            ps.numpy
-          ]));
-      in
-        {
-          devShell = pkgs.mkShell {
-            name = "my-python-project";
-            buildInputs = [
-              python-with-all-my-packages
-            ];
-          };
-        }
-    );
+            # ----- A Python interpreter with the packages that interest us -------
+            python-with-all-my-packages = (python.withPackages (ps: [
+              ps.pytest
+              ps.numpy
+            ]));
+        in
+          {
+            devShell = pkgs.mkShell {
+              name = "my-python-project";
+              buildInputs = [
+                python-with-all-my-packages
+              ];
+            };
+          }
+      );
 }

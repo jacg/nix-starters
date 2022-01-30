@@ -66,11 +66,11 @@ The details will vary to some extent from language to language. Broadly speaking
 
 ## Take your toolset with you: home-manager
 
-home-manager allows you to reproduce your arbitrarily complex personal toolset and configuration on a new machine, with minimal effort. TODO: home-manager has not been flakified yet.
+`home-manager` allows you to reproduce your arbitrarily complex personal toolset and configuration on a new machine, with minimal effort.
 
 **BEWARE** the git config has contains my name and email address! So make sure to edit `home-manager/gitconfig` before deploying.
 
-See `home-manager/README.md` for details.
+See `home-manager/README.md` for details. TODO: README does not exist yet.
 
 ## Pinning
 

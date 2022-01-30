@@ -15,6 +15,10 @@
         path = ./julia;
         description = "Julia project";
       };
+      home-manager = {
+        path = ./home-manager;
+        description = "Home Manager: personal Nix environment";
+      };
     };
   };
 }

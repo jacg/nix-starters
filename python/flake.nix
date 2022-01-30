@@ -41,31 +41,44 @@
             python = pkgs.python39;
 
             # ----- A Python interpreter with the packages that interest us -------
-            python-with-all-my-packages = (python.withPackages (ps: [
-              ps.pytest
-              ps.numpy
-            ]));
+            python-with-all-my-packages = (python:
+              (python.withPackages (ps: [
+                ps.pytest
+                ps.numpy
+            ])));
+
         in
           {
-            devShell = pkgs.mkShell {
-              name = "my-python-project";
-              buildInputs = [
-                python-with-all-my-packages
-                pkgs.just
-                pkgs.cowsay
-              ];
-              packages = [
-                pkgs.lolcat
-                pkgs.exa
-              ];
-              shellHook =
-                ''
-                  export PS1="python devshell> "
-                  alias foo='cowsay Foo'
-                  alias bar='exa -l | lolcat'
-                  alias baz='cowsay What is the difference between buildIntputs and packages? | lolcat'
-                '';
-            };
+
+            devShells =
+              builtins.listToAttrs (
+                builtins.map (
+                  pythonVersion: {
+                    name = pythonVersion;
+                    value = pkgs.mkShell {
+                      buildInputs = [
+                        (python-with-all-my-packages pkgs.${ pythonVersion })
+                        pkgs.just
+                        pkgs.cowsay
+                      ];
+                      packages = [
+                        pkgs.lolcat
+                        pkgs.exa
+                      ];
+                      shellHook =
+                        ''
+          export PS1="${pythonVersion} devshell> "
+          alias foo='cowsay Foo'
+          alias bar='exa -l | lolcat'
+          alias baz='cowsay What is the difference between buildIntputs and packages? | lolcat'
+                         '';
+                    };
+                  }
+                ) [ "python37" "python38" "python39" "python310" ]
+              );
+
+            #devShell = self.python39;
+
           }
       );
 }

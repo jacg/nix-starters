@@ -1,2 +1,2 @@
 test colours='':
-     pytest {{colours}}
+     pytest -v {{colours}}

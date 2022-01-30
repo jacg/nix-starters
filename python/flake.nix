@@ -20,7 +20,14 @@
   };
 
   outputs = { self, nixpkgs, flake-utils, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
+
+    # Option 1: try to support each default system
+    flake-utils.lib.eachDefaultSystem # NB Some packages in nixpkgs are not supported on some systems
+
+    # Option 2: try to support selected systems
+    # flake-utils.lib.eachSystem ["x86_64-linux" "i686-linux" "aarch64-linux" "x86_64-darwin"]
+      (system:
+
       let pkgs = import nixpkgs { inherit system; };
           python = pkgs.python39;
 

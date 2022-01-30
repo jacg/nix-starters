@@ -1,0 +1,2 @@
+test colours='':
+     cargo {{colours}} test

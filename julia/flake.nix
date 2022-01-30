@@ -41,6 +41,7 @@
               name = "my-julia-project";
               buildInputs = [
                 pkgs.julia-bin
+                pkgs.just
                 pkgs.cowsay
               ];
               packages = [

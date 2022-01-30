@@ -51,6 +51,7 @@
               name = "my-python-project";
               buildInputs = [
                 python-with-all-my-packages
+                pkgs.just
                 pkgs.cowsay
               ];
               packages = [

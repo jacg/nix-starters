@@ -106,6 +106,7 @@
               buildInputs = [
                 rust
                 pkgs.rust-analyzer
+                pkgs.just
                 pkgs.cowsay
               ];
               packages = [

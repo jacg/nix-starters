@@ -1,0 +1,2 @@
+test colours='':
+     julia {{colours}} testme.jl

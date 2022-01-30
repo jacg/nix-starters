@@ -34,6 +34,8 @@ direnv: error <your project dierctory>.envrc is blocked. Run `direnv allow` to a
 If you trust that the template won't do anything anything malicious on your
 machine, approve it as suggested by the message: `direnv allow`.
 
+Check that everything as expected by typing `just`: you should see some successful test executions.
+
 Henceforth the environment will be activated automatically each time you `cd`
 into `<your project dir>` or any of its subdirectories, and deactivated when you
 `cd` back out.
@@ -53,7 +55,10 @@ If you are using `home-manager` to provide `direnv`, you will need
 
 ### Without `direnv`
 
-You can activate the environment manually with `nix develop`. This will start a new shell with the environment activated. Exit the shell, to disable the environment.
+You can activate the environment manually with `nix develop`. This will start a
+new shell with the environment activated. Check that everything as expected by
+typing `just`: you should see some successful test executions. Exit the shell,
+to disable the environment.
 
 ### Specifying dependencies
 

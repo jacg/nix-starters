@@ -32,6 +32,7 @@
       in
         {
           devShell = pkgs.mkShell {
+            name = "my-python-project";
             buildInputs = [
               python-with-all-my-packages
             ];

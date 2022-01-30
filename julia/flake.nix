@@ -22,6 +22,7 @@
       in
         {
           devShell = pkgs.mkShell {
+            name = "my-julia-project";
             buildInputs = [
               pkgs.julia-bin
             ];

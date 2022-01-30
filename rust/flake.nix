@@ -87,6 +87,7 @@
       in
         {
           devShell = pkgs.mkShell {
+            name = "my-rust-project";
             buildInputs = [
               rust
               pkgs.rust-analyzer

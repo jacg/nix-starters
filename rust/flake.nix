@@ -101,7 +101,19 @@
               buildInputs = [
                 rust
                 pkgs.rust-analyzer
+                pkgs.cowsay
               ];
+              packages = [
+                pkgs.lolcat
+                pkgs.exa
+              ];
+              shellHook =
+                ''
+                  export PS1="rust devshell> "
+                  alias foo='cowsay Foo'
+                  alias bar='exa -l | lolcat'
+                  alias baz='cowsay What is the difference between buildIntputs and packages? | lolcat'
+                '';
             };
           }
       );

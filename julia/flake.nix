@@ -36,7 +36,19 @@
               name = "my-julia-project";
               buildInputs = [
                 pkgs.julia-bin
+                pkgs.cowsay
               ];
+              packages = [
+                pkgs.lolcat
+                pkgs.exa
+              ];
+              shellHook =
+                ''
+                  export PS1="julia devshell> "
+                  alias foo='cowsay Foo'
+                  alias bar='exa -l | lolcat'
+                  alias baz='cowsay What is the difference between buildIntputs and packages? | lolcat'
+                '';
             };
           }
       );

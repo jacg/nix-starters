@@ -46,7 +46,19 @@
               name = "my-python-project";
               buildInputs = [
                 python-with-all-my-packages
+                pkgs.cowsay
               ];
+              packages = [
+                pkgs.lolcat
+                pkgs.exa
+              ];
+              shellHook =
+                ''
+                  export PS1="python devshell> "
+                  alias foo='cowsay Foo'
+                  alias bar='exa -l | lolcat'
+                  alias baz='cowsay What is the difference between buildIntputs and packages? | lolcat'
+                '';
             };
           }
       );

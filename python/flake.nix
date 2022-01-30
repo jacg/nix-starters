@@ -65,6 +65,8 @@
                   alias baz='cowsay What is the difference between buildIntputs and packages? | lolcat'
                 '';
             };
+            defaultPackage = pkgs.lolcat;
+            defaultApp = pkgs.cowsay;
           }
       );
 }

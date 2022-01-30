@@ -11,6 +11,11 @@
 
   inputs = {
 
+    # Version pinning is managed in flake.lock. Upgrading can be done with
+    # something like
+    #
+    #    nix flake lock --update-input nixpkgs
+
     nixpkgs     .url = "github:nixos/nixpkgs/nixos-21.11";
     rust-overlay.url = "github:oxalica/rust-overlay";
     flake-utils .url = "github:numtide/flake-utils";

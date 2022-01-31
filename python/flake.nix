@@ -48,7 +48,10 @@
             ])));
 
         in
-          {
+          rec {
+
+            #devShell = self.devShells.${ system }.python39; # does not need `rec`
+            devShell = devShells.python39;
 
             devShells =
               builtins.listToAttrs (

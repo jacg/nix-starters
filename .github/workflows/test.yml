@@ -73,7 +73,7 @@ jobs:
       - name: Test in nix develop
         run: cd python && nix --extra-experimental-features nix-command --extra-experimental-features flakes develop .#${{ matrix.py }} -c pytest --color=yes -v
 
-  Python flake compat:
+  Python-flake-compat:
     if: "! contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.allow-fail }}

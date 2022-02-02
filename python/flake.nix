@@ -79,9 +79,6 @@
                   }
                 ) [ "python37" "python38" "python39" "python310" ]
               );
-
-            #devShell = self.python39;
-
           }
       );
 }

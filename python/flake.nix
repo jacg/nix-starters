@@ -38,7 +38,6 @@
               # Any overlays you need can go here
               overlays = [];
             };
-            python = pkgs.python39;
 
             # ----- A Python interpreter with the packages that interest us -------
             python-with-all-my-packages = (python:

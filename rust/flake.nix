@@ -64,6 +64,10 @@
                       cargo = rustup.default;
                       rust-analyzer-preview = rust-analyzer-preview-on "2022-01-25";
                     })
+                # ==== Cargo nextest ========================================================
+                (final: prev: {
+                  cargo-nextest = final.callPackage ./overlays/cargo-nextest.nix {};
+                })
               ];
             };
 
@@ -75,6 +79,7 @@
                 pkgs.rustc
                 pkgs.cargo
                 pkgs.rust-analyzer
+                pkgs.cargo-nextest
                 pkgs.just
                 pkgs.cowsay
               ];

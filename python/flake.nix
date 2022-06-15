@@ -49,8 +49,8 @@
         in
           rec {
 
-            #devShell = self.devShells.${ system }.python39; # does not need `rec`
-            devShell = devShells.python39;
+            #devShell = self.devShells.${ system }.python310; # does not need `rec`
+            devShell = devShells.python310;
 
             devShells =
               builtins.listToAttrs (

@@ -1,0 +1,2 @@
+test colours='':
+     pytest -v {{colours}}

@@ -2,57 +2,80 @@
 
 # Use Nix to provide isolated, per-project, declarative definitions of dependencies for projects in various languages
 
-+ Key assumption: the target machine has Nix installed and available to your user.
++ Key assumptions:
+
+  1. The target machine has Nix installed and available to your user.
+
+  2. Nix has the experimental features `nix-command` and `flakes` enabled.
+
+     For a legacy version which works with older Nix, see the `legacy` branch. (TODO: not yet ready)
 
 + Helpful but not strictly necessary: [direnv](https://direnv.net/) is installed and enabled in your shell.
 
-## Quickly bootstrap development environments in various languages
+## Quickly bootstrap projects with development environments and dependencies in various languages
 
-+ Rust
-+ Python
-+ Julia [This one is different from the others. See `julia/README.md`.]
-+ C++ [TODO If you need this, just ask. I do have a solution for a cmake-based project, but cleaning it up and publishing it isn't among my top priorities.
+1. Create a directory for the project
+2. `cd` into that directory
+3. Create the project from a flake template:
 
-### Assuming that you are using `direnv`
+   + `nix flake -t github:jacg/nix-starters#rust` for a Rust project.
+   + `nix flake -t github:jacg/nix-starters#python` for a Python project.
+   + `nix flake -t github:jacg/nix-starters#python` Julia.
+   + C++ [TODO If you need this, just ask. I do have a solution for a
+     cmake-based project, but cleaning it up and publishing it isn't among my
+     top priorities.
 
-1. Copy `<chosen-language>/{shell.nix,.envrc}` into the top directory of your project.
-2. `cd <your project dir>`
-3. The first time you do this, you will see the error message
-   ```shell
-   direnv: error <your project dir>/.envrc is blocked. Run `direnv allow` to approve its content
-   ```
-4. Follow the hint: `direnv allow`
-5. Henceforth the environment will be activated automatically each time you `cd` into `<your project dir>` or any of its subdirectories, and deactivated when you `cd` back out.
+### With `direnv`
 
-### Without direnv
+If you have `direnv` installed and enabled, you should now see the following error message:
+```
+direnv: error <your project dierctory>.envrc is blocked. Run `direnv allow` to approve its content
+```
+If you trust that the template won't do anything anything malicious on your
+machine, approve it as suggested by the message: `direnv allow`.
 
-1. You only need `shell.nix`, not `.envrc`.
-2. Manually activate the environment with `nix-shell <your project dir>/shell.nix`. This will drop you into a `bash` with the environment. Exiting this shell deactivates the environment.
+Check that everything as expected by typing `just`: you should see some successful test executions.
+
+Henceforth the environment will be activated automatically each time you `cd`
+into `<your project dir>` or any of its subdirectories, and deactivated when you
+`cd` back out.
+
+You can withdraw permission for `direnv` to activate this environment
+automatically with `direnv deny`.
+
+If you are using `home-manager` to provide `direnv`, you will need
+
+``` nix
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+    nix-direnv.enableFlakes = true;
+  };
+```
+
+### Without `direnv`
+
+You can activate the environment manually with `nix develop`. This will start a
+new shell with the environment activated. Check that everything as expected by
+typing `just`: you should see some successful test executions. Exit the shell,
+to disable the environment.
 
 ### Specifying dependencies
 
-The details will vary to some extent from language to language. Broadly speaking, add dependencies to `buildInputs` in `shell.nix`.
+The details will vary to some extent from language to language. Broadly speaking, add dependencies to `buildInputs` in `devShell` set inside `flake.nix`.
 
 ## Take your toolset with you: home-manager
 
-home-manager allows you to reproduce your arbitrarily complex personal toolset and configuration on a new machine, with minimal effort.
+`home-manager` allows you to reproduce your arbitrarily complex personal toolset and configuration on a new machine, with minimal effort.
 
 **BEWARE** the git config has contains my name and email address! So make sure to edit `home-manager/gitconfig` before deploying.
 
-See `home-manager/README.md` for details.
-
-## Flakes
-
-+ At present flakes are too painful to work with for Nix non-experts (the target audience).
-+ I don't have time to maintain two versions.
-
-Consequently, as far as these recipes are concerned, I am ignoring the existence of flakes until they are fully stabilized. But I do intend to migrate these recipes to flakes once they are stable.
+See `home-manager/README.md` for details. TODO: README does not exist yet.
 
 ## Pinning
 
-The nix versions are pinned. To switch to a more recent set of packages, change `nixpkgs-commit-id` in your chosen `shell.nix`:
+The versions of all the tools and dependencies are pinned: their exact versions are specified in `flake.lock`. Upgrading can be done with something like:
 
-    To get a more recent version of nixpkgs, go to https://status.nixos.org/,
-    which lists the latest commit that passes all the tests for any release.
-    Unless there is an overriding reason, pick the latest stable NixOS release, at
-    the time of writing this is nixos-21.05.
+``` nix
+nix flake lock --update-input nixpkgs
+```

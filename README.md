@@ -40,6 +40,12 @@ replacing
      cmake-based project, but cleaning it up and publishing it isn't among my
      top priorities.
 
+Alternatively, rather than creating the project directory by hand, it can be created by `nix flake`:
+
+``` shell
+nix flake new -t github:jacg/nix-starters#rust ./project-directory
+```
+
 ### With `direnv`
 
 If you have `direnv` installed and enabled, you should now see the following error message:

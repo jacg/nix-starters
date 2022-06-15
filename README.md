@@ -18,9 +18,9 @@
 2. `cd` into that directory
 3. Create the project from a flake template:
 
-   + `nix flake -t github:jacg/nix-starters#rust` for a Rust project.
-   + `nix flake -t github:jacg/nix-starters#python` for a Python project.
-   + `nix flake -t github:jacg/nix-starters#python` Julia.
+   + `nix flake init -t github:jacg/nix-starters#rust` for a Rust project.
+   + `nix flake init -t github:jacg/nix-starters#python` for a Python project.
+   + `nix flake init -t github:jacg/nix-starters#python` Julia.
    + C++ [TODO If you need this, just ask. I do have a solution for a
      cmake-based project, but cleaning it up and publishing it isn't among my
      top priorities.

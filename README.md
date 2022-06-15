@@ -1,5 +1,20 @@
 [![Test](https://github.com/jacg/nix-starters/actions/workflows/test.yml/badge.svg)](https://github.com/jacg/nix-starters/actions/workflows/test.yml)
 
+# TLDR
+
+To start a Rust / Python / Julia project type
+
+``` shell
+nix flake new -t github:jacg/nix-starters#rust ./target-directory
+```
+
+replacing
+
++ `rust` with `python` or `julia`, if appropriate
+
++ `./target-directory` with the name of the (not yet existing) directory in
+  which you want the project to be created.
+
 # Use Nix to provide isolated, per-project, declarative definitions of dependencies for projects in various languages
 
 + Key assumptions:
@@ -18,12 +33,18 @@
 2. `cd` into that directory
 3. Create the project from a flake template:
 
-   + `nix flake -t github:jacg/nix-starters#rust` for a Rust project.
-   + `nix flake -t github:jacg/nix-starters#python` for a Python project.
-   + `nix flake -t github:jacg/nix-starters#python` Julia.
+   + `nix flake init -t github:jacg/nix-starters#rust` for a Rust project.
+   + `nix flake init -t github:jacg/nix-starters#python` for a Python project.
+   + `nix flake init -t github:jacg/nix-starters#python` Julia.
    + C++ [TODO If you need this, just ask. I do have a solution for a
      cmake-based project, but cleaning it up and publishing it isn't among my
      top priorities.
+
+Alternatively, rather than creating the project directory by hand, it can be created by `nix flake`:
+
+``` shell
+nix flake new -t github:jacg/nix-starters#rust ./project-directory
+```
 
 ### With `direnv`
 

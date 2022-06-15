@@ -49,8 +49,8 @@
                     rust-tcfile  = final.rust-bin.fromRustupToolchainFile ./rust-toolchain;
                     rust-latest  = final.rust-bin.stable .latest      ;
                     rust-beta    = final.rust-bin.beta   .latest      ;
-                    rust-nightly = final.rust-bin.nightly."2022-05-14";
-                    rust-stable  = final.rust-bin.stable ."1.60.0"    ; # nix flake lock --update-input rust-overlay
+                    rust-nightly = final.rust-bin.nightly."2022-06-14";
+                    rust-stable  = final.rust-bin.stable ."1.61.0"    ; # nix flake lock --update-input rust-overlay
                     rust-analyzer-preview-on = date:
                       final.rust-bin.nightly.${date}.default.override
                         { extensions = [ "rust-analyzer-preview" ]; };
@@ -62,7 +62,7 @@
 
                       rustc = rustup.default;
                       cargo = rustup.default;
-                      rust-analyzer-preview = rust-analyzer-preview-on "2022-05-14";
+                      rust-analyzer-preview = rust-analyzer-preview-on "2022-06-14";
                     })
                 # ==== Cargo nextest ========================================================
                 (final: prev: {

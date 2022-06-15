@@ -1,5 +1,20 @@
 [![Test](https://github.com/jacg/nix-starters/actions/workflows/test.yml/badge.svg)](https://github.com/jacg/nix-starters/actions/workflows/test.yml)
 
+# TLDR
+
+To start a Rust / Python / Julia project type
+
+``` shell
+nix flake new -t github:jacg/nix-starters#rust ./target-directory
+```
+
+replacing
+
++ `rust` with `python` or `julia`, if appropriate
+
++ `./target-directory` with the name of the (not yet existing) directory in
+  which you want the project to be created.
+
 # Use Nix to provide isolated, per-project, declarative definitions of dependencies for projects in various languages
 
 + Key assumptions:

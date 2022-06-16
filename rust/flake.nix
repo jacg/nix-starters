@@ -52,8 +52,9 @@
                     rust-nightly = final.rust-bin.nightly."2022-06-14";
                     rust-stable  = final.rust-bin.stable ."1.61.0"    ; # nix flake lock --update-input rust-overlay
                     rust-analyzer-preview-on = date:
-                      final.rust-bin.nightly.${date}.default.override
-                        { extensions = [ "rust-analyzer-preview" ]; };
+                      final.rust-bin.nightly.${date}.default.override {
+                        extensions = [ "rust-analyzer-preview" ];
+                      };
                   in
                     rec {
                       # The version of the Rust system to be used in buildInputs. Choose between

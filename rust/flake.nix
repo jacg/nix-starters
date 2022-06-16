@@ -55,18 +55,18 @@
                       final.rust-bin.nightly.${date}.default.override {
                         extensions = [ "rust-analyzer-preview" ];
                       };
-                    rust-stable-with-wasm = rust-stable.default.override {
-                      targets = [ "wasm32-unknown-unknown" ];
-                    };
                   in
                     rec {
                       # The version of the Rust system to be used in buildInputs.
                       # Set `choice` to `rust-<choice>` where `<choice>` is one of
-                      #   tcfile / latest / beta / nightly / stable / stable-with-wasm
+                      #   tcfile / latest / beta / nightly / stable
                       # (see names set above)
                       choice = rust-stable;
 
-                      rust-tools = choice.default;
+                      rust-tools = choice.default.override {
+                        # extensions = [];
+                        # targets = [ "wasm32-unknown-unknown" ];
+                      };
                       rust-analyzer-preview = rust-analyzer-preview-on "2022-06-14";
                       rust-src = rust-stable.rust-src;
                     })

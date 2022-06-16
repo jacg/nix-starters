@@ -55,6 +55,9 @@
                       final.rust-bin.nightly.${date}.default.override {
                         extensions = [ "rust-analyzer-preview" ];
                       };
+                    rust-stable-with-wasm = rust-stable.default.override {
+                      targets = [ "wasm32-unknown-unknown" ];
+                    };
                   in
                     rec {
                       # The version of the Rust system to be used in buildInputs. Choose between

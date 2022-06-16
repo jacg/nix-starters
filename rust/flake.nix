@@ -59,10 +59,8 @@
                     rec {
                       # The version of the Rust system to be used in buildInputs. Choose between
                       # tcfile/latest/beta/nightly/stable (see above) on the next line
-                      rustup = rust-stable;
+                      rust-tools = rust-stable.default;
 
-                      rustc = rustup.default;
-                      cargo = rustup.default;
                       rust-analyzer-preview = rust-analyzer-preview-on "2022-06-14";
                       rust-src = rust-stable.rust-src;
                     })
@@ -78,8 +76,7 @@
             devShell = pkgs.mkShell {
               name = "my-rust-project";
               buildInputs = [
-                pkgs.rustc
-                pkgs.cargo
+                pkgs.rust-tools
                 pkgs.rust-analyzer-preview
                 pkgs.cargo-nextest
                 pkgs.just

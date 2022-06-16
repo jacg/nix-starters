@@ -64,6 +64,7 @@
                       rustc = rustup.default;
                       cargo = rustup.default;
                       rust-analyzer-preview = rust-analyzer-preview-on "2022-06-14";
+                      rust-src = rust-stable.rust-src;
                     })
                 # ==== Cargo nextest ========================================================
                 (final: prev: {
@@ -95,7 +96,7 @@
                   alias bar='exa -l | lolcat'
                   alias baz='cowsay What is the difference between buildIntputs and packages? | lolcat'
                 '';
-              RUST_SRC_PATH = "${pkgs.rustup.rust-src}/lib/rustlib/src/rust/library";
+              RUST_SRC_PATH = "${pkgs.rust-src}/lib/rustlib/src/rust/library";
             };
           }
       );

@@ -83,7 +83,7 @@
                     name = pythonVersion;
                     value = pkgs.mkShell {
                       buildInputs = [
-                        (python-with-all-my-packages pkgs.${ pythonVersion })
+                        (python-with-all-my-packages pkgs.python3)
                         pkgs.just
                         pkgs.cowsay
                       ];

@@ -36,7 +36,30 @@
         let pkgs = import nixpkgs {
               inherit system;
               # Any overlays you need can go here
-              overlays = [];
+              overlays = [
+
+                # Try to add `fubar` package to python.withPackages
+                (final: prev:
+                  {
+                    pythonPackagesOverlays = (prev.pythonPackagesOverlays or [ ]) ++ [
+                      (python-final: python-prev: {
+                        fubar = python-prev.setuptools;
+                      })
+                    ];
+
+                    python3 =
+                      let
+                        self = prev.python3.override {
+                          inherit self;
+                          packageOverrides = prev.lib.composeManyExtensions final.pythonPackagesOverlays;
+                        }; in
+                        self;
+
+                    python3Packages = final.python3.pkgs;
+
+                  })
+
+              ];
             };
 
             # ----- A Python interpreter with the packages that interest us -------
@@ -44,6 +67,7 @@
               (python.withPackages (ps: [
                 ps.pytest
                 ps.numpy
+                ps.fubar
             ])));
 
         in

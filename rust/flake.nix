@@ -43,7 +43,7 @@
                 # ===== Specification of the rust toolchain to be used ====================
                 rust-overlay.overlay (final: prev:
                   let
-                    # If you have a rust-toolchain file for rustup, choose `rustup =
+                    # If you have a rust-toolchain file for rustup, set `choice =
                     # rust-tcfile` further down to get the customized toolchain
                     # derivation.
                     rust-tcfile  = final.rust-bin.fromRustupToolchainFile ./rust-toolchain;
@@ -60,10 +60,13 @@
                     };
                   in
                     rec {
-                      # The version of the Rust system to be used in buildInputs. Choose between
-                      # tcfile/latest/beta/nightly/stable (see above) on the next line
-                      rust-tools = rust-stable.default;
+                      # The version of the Rust system to be used in buildInputs.
+                      # Set `choice` to `rust-<choice>` where `<choice>` is one of
+                      #   tcfile / latest / beta / nightly / stable / stable-with-wasm
+                      # (see names set above)
+                      choice = rust-stable;
 
+                      rust-tools = choice.default;
                       rust-analyzer-preview = rust-analyzer-preview-on "2022-06-14";
                       rust-src = rust-stable.rust-src;
                     })

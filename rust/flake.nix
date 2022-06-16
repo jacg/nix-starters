@@ -78,7 +78,7 @@
               buildInputs = [
                 pkgs.rustc
                 pkgs.cargo
-                pkgs.rust-analyzer
+                pkgs.rust-analyzer-preview
                 pkgs.cargo-nextest
                 pkgs.just
                 pkgs.cowsay

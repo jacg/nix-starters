@@ -94,6 +94,7 @@
                   alias bar='exa -l | lolcat'
                   alias baz='cowsay What is the difference between buildIntputs and packages? | lolcat'
                 '';
+              RUST_SRC_PATH = "${pkgs.rustup.rust-src}/lib/rustlib/src/rust/library";
             };
           }
       );

@@ -1,2 +1,2 @@
 test colours='':
-     cargo {{colours}} test
+     cargo {{colours}} nextest run

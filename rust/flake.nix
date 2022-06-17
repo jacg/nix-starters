@@ -43,7 +43,7 @@
                 # ===== Specification of the rust toolchain to be used ====================
                 rust-overlay.overlay (final: prev:
                   let
-                    # If you have a rust-toolchain file for rustup, choose `rustup =
+                    # If you have a rust-toolchain file for rustup, set `choice =
                     # rust-tcfile` further down to get the customized toolchain
                     # derivation.
                     rust-tcfile  = final.rust-bin.fromRustupToolchainFile ./rust-toolchain;
@@ -52,17 +52,23 @@
                     rust-nightly = final.rust-bin.nightly."2022-06-14";
                     rust-stable  = final.rust-bin.stable ."1.61.0"    ; # nix flake lock --update-input rust-overlay
                     rust-analyzer-preview-on = date:
-                      final.rust-bin.nightly.${date}.default.override
-                        { extensions = [ "rust-analyzer-preview" ]; };
+                      final.rust-bin.nightly.${date}.default.override {
+                        extensions = [ "rust-analyzer-preview" ];
+                      };
                   in
                     rec {
-                      # The version of the Rust system to be used in buildInputs. Choose between
-                      # tcfile/latest/beta/nightly/stable (see above) on the next line
-                      rustup = rust-stable;
+                      # The version of the Rust system to be used in buildInputs.
+                      # Set `choice` to `rust-<choice>` where `<choice>` is one of
+                      #   tcfile / latest / beta / nightly / stable
+                      # (see names set above)
+                      choice = rust-stable;
 
-                      rustc = rustup.default;
-                      cargo = rustup.default;
+                      rust-tools = choice.default.override {
+                        # extensions = [];
+                        # targets = [ "wasm32-unknown-unknown" ];
+                      };
                       rust-analyzer-preview = rust-analyzer-preview-on "2022-06-14";
+                      rust-src = rust-stable.rust-src;
                     })
                 # ==== Cargo nextest ========================================================
                 (final: prev: {
@@ -76,8 +82,7 @@
             devShell = pkgs.mkShell {
               name = "my-rust-project";
               buildInputs = [
-                pkgs.rustc
-                pkgs.cargo
+                pkgs.rust-tools
                 pkgs.rust-analyzer-preview
                 pkgs.cargo-nextest
                 pkgs.just
@@ -94,7 +99,7 @@
                   alias bar='exa -l | lolcat'
                   alias baz='cowsay What is the difference between buildIntputs and packages? | lolcat'
                 '';
-              RUST_SRC_PATH = "${pkgs.rustup.rust-src}/lib/rustlib/src/rust/library";
+              RUST_SRC_PATH = "${pkgs.rust-src}/lib/rustlib/src/rust/library";
             };
           }
       );

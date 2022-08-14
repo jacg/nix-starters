@@ -70,10 +70,6 @@
                       rust-analyzer-preview = rust-analyzer-preview-on "2022-08-13";
                       rust-src = rust-stable.rust-src;
                     })
-                # ==== Cargo nextest ========================================================
-                (final: prev: {
-                  cargo-nextest = final.callPackage ./overlays/cargo-nextest.nix {};
-                })
               ];
             };
 

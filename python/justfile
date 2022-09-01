@@ -1,2 +1,4 @@
+# -*-Makefile-*-
+
 test colours='':
      pytest -v {{colours}}

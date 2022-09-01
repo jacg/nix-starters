@@ -64,6 +64,7 @@
                         pkgs.cowsay
                       ];
                       packages = [
+                        pkgs.python3Packages.python-lsp-server
                         pkgs.lolcat
                         pkgs.exa
                       ];

@@ -16,7 +16,7 @@
     #
     #    nix flake lock --update-input nixpkgs
 
-    nixpkgs     .url = "github:nixos/nixpkgs/nixos-22.05";
+    nixpkgs     .url = "github:nixos/nixpkgs/nixos-22.11";
     rust-overlay.url = "github:oxalica/rust-overlay";
     flake-utils .url = "github:numtide/flake-utils";
     flake-compat = {
@@ -49,7 +49,7 @@
                     rust-tcfile  = final.rust-bin.fromRustupToolchainFile ./rust-toolchain;
                     rust-latest  = final.rust-bin.stable .latest      ;
                     rust-beta    = final.rust-bin.beta   .latest      ;
-                    rust-nightly = final.rust-bin.nightly."2022-11-04";
+                    rust-nightly = final.rust-bin.nightly."2022-12-01";
                     rust-stable  = final.rust-bin.stable ."1.65.0"    ; # nix flake lock --update-input rust-overlay
                     rust-analyzer-preview-on = date:
                       final.rust-bin.nightly.${date}.default.override {
@@ -67,7 +67,7 @@
                         # extensions = [];
                         # targets = [ "wasm32-unknown-unknown" ];
                       };
-                      rust-analyzer-preview = rust-analyzer-preview-on "2022-11-04";
+                      rust-analyzer-preview = rust-analyzer-preview-on "2022-12-01";
                       rust-src = rust-stable.rust-src;
                     })
               ];

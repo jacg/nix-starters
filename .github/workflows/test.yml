@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-10.15]
+        os: [ubuntu-latest, macos-12]
         allow-fail: [false]
     steps:
       - uses: actions/checkout@v2
@@ -34,7 +34,7 @@ jobs:
         os: [ubuntu-latest]
         allow-fail: [false]
         include:
-          - os: macos-10.15
+          - os: macos-12
             allow-fail: true
     steps:
       - uses: actions/checkout@v2
@@ -55,14 +55,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-10.15]
+        os: [ubuntu-latest, macos-12]
         py: [python38, python39, python310]
         allow-fail: [false]
         include:
           - os: ubuntu-latest
             py: python311
             allow-fail: true
-          - os: macos-10.15
+          - os: macos-12
             py: python311
             allow-fail: true
     steps:
@@ -82,7 +82,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-10.15]
+        os: [ubuntu-latest, macos-12]
         py: [python310]
         allow-fail: [false]
     steps:

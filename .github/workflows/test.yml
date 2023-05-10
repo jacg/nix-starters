@@ -18,7 +18,7 @@ jobs:
       - uses: cachix/install-nix-action@v20
         with:
           nix_path: nixpkgs=channel:nixos-22.11
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2.2.1
       - name: Test in nix-shell
         run: nix-shell rust/shell.nix --run "cd rust && cargo test --color=always"
       - name: Test in nix develop

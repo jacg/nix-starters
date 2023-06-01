@@ -11,6 +11,10 @@
         path = ./python;
         description = "Python project";
       };
+      typst = {
+        path = ./typst;
+        description = "Typst project";
+      };
       julia = {
         path = ./julia;
         description = "Julia project";

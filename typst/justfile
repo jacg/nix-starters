@@ -1,0 +1,6 @@
+# -*-Makefile-*-
+
+dev:
+    typst compile thingy.typ
+    evince thingy.pdf &
+    typst watch thingy.typ

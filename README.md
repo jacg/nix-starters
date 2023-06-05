@@ -2,7 +2,7 @@
 
 # TLDR
 
-To start a Rust / Python / Julia project type
+To start a Rust / Python / Typst project type
 
 ``` shell
 nix flake new -t github:jacg/nix-starters#rust ./target-directory
@@ -10,7 +10,7 @@ nix flake new -t github:jacg/nix-starters#rust ./target-directory
 
 replacing
 
-+ `rust` with `python` or `julia`, if appropriate
++ `rust` with `python` or `typst`, if appropriate
 
 + `./target-directory` with the name of the (not yet existing) directory in
   which you want the project to be created.
@@ -35,7 +35,7 @@ replacing
 
    + `nix flake init -t github:jacg/nix-starters#rust` for a Rust project.
    + `nix flake init -t github:jacg/nix-starters#python` for a Python project.
-   + `nix flake init -t github:jacg/nix-starters#julia` Julia.
+   + `nix flake init -t github:jacg/nix-starters#typst` for Typst.
    + C++ [TODO If you need this, just ask. I do have a solution for a
      cmake-based project, but cleaning it up and publishing it isn't among my
      top priorities.

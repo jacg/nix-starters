@@ -24,28 +24,6 @@ jobs:
       - name: Test in nix develop
         run: cd rust && nix --extra-experimental-features nix-command --extra-experimental-features flakes develop -c cargo test --color=always
 
-  Julia:
-    if: "! contains(github.event.head_commit.message, '[skip ci]')"
-    runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.allow-fail }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        allow-fail: [false]
-        include:
-          - os: macos-12
-            allow-fail: true
-    steps:
-      - uses: actions/checkout@v3.5.2
-      - uses: cachix/install-nix-action@v21
-        with:
-          nix_path: nixpkgs=channel:nixos-23.05
-      - name: Test in nix develop
-        run: cd julia && nix --extra-experimental-features nix-command --extra-experimental-features flakes develop -c julia --color=yes testme.jl
-      - name: Test in nix-shell
-        run: nix-shell julia/shell.nix --run "cd julia && julia --color=yes testme.jl"
-
   Python:
     if: "! contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ${{ matrix.os }}

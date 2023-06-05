@@ -15,7 +15,7 @@
     #
     #    nix flake lock --update-input nixpkgs
 
-    nixpkgs     .url = "github:nixos/nixpkgs/nixos-22.11";
+    nixpkgs     .url = "github:nixos/nixpkgs/nixos-23.05";
     flake-utils .url = "github:numtide/flake-utils";
     flake-compat = {
       url = "github:edolstra/flake-compat";

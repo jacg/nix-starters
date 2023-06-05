@@ -50,7 +50,7 @@
           rec {
 
             #devShell = self.devShells.${ system }.python310; # does not need `rec`
-            devShell = devShells.python310;
+            devShell = devShells.python311;
 
             devShells =
               builtins.listToAttrs (
@@ -77,7 +77,7 @@
                          '';
                     };
                   }
-                ) [ "python38" "python39" "python310" ]
+                ) [ "python38" "python39" "python310" "python311" ]
               );
           }
       );

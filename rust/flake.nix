@@ -69,7 +69,15 @@
                       };
                       rust-analyzer-preview = rust-analyzer-preview-on "2023-06-03";
                       rust-src = rust-stable.rust-src;
-                    })
+
+                      python-with-my-packages = (python:
+                        python.withPackages (ps: [
+                          ps.pytest
+                          ps.numpy
+                        ])
+                      );
+                    }
+                )
               ];
             };
 
@@ -83,6 +91,7 @@
                 pkgs.cargo-nextest
                 pkgs.just
                 pkgs.cowsay
+                (pkgs.python-with-my-packages pkgs.python311)
               ];
               packages = [
                 pkgs.lolcat

@@ -23,6 +23,10 @@
         path = ./home-manager;
         description = "Home Manager: personal Nix environment";
       };
+      fhs = {
+        path = ./fhs;
+        description = "Filesystem Hierarchy Standard";
+      };
     };
   };
 }

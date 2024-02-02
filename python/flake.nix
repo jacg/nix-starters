@@ -15,7 +15,7 @@
     #
     #    nix flake lock --update-input nixpkgs
 
-    nixpkgs     .url = "github:nixos/nixpkgs/nixos-23.05";
+    nixpkgs     .url = "github:nixos/nixpkgs/nixos-23.11";
     flake-utils .url = "github:numtide/flake-utils";
     flake-compat = {
       url = "github:edolstra/flake-compat";
@@ -66,18 +66,18 @@
                       packages = [
                         pkgs.python3Packages.python-lsp-server
                         pkgs.lolcat
-                        pkgs.exa
+                        pkgs.eza
                       ];
                       shellHook =
                         ''
           export PS1="${pythonVersion} devshell> "
           alias foo='cowsay Foo'
-          alias bar='exa -l | lolcat'
+          alias bar='eza -l | lolcat'
           alias baz='cowsay What is the difference between buildIntputs and packages? | lolcat'
                          '';
                     };
                   }
-                ) [ "python38" "python39" "python310" "python311" ]
+                ) [ "python39" "python310" "python311" ]
               );
           }
       );

@@ -15,7 +15,7 @@ jobs:
         allow-fail: [false]
     steps:
       - uses: actions/checkout@v3.5.2
-      - uses: cachix/install-nix-action@v21
+      - uses: cachix/install-nix-action@v25
         with:
           nix_path: nixpkgs=channel:nixos-23.05
       - uses: Swatinem/rust-cache@v2.4.0
@@ -45,7 +45,7 @@ jobs:
             allow-fail: true
     steps:
       - uses: actions/checkout@v3.5.2
-      - uses: cachix/install-nix-action@v21
+      - uses: cachix/install-nix-action@v25
         with:
           nix_path: nixpkgs=channel:nixos-23.05
       - name: Test in nix develop
@@ -65,7 +65,7 @@ jobs:
         allow-fail: [false]
     steps:
       - uses: actions/checkout@v3.5.2
-      - uses: cachix/install-nix-action@v21
+      - uses: cachix/install-nix-action@v25
         with:
           nix_path: nixpkgs=channel:nixos-23.05
       - name: Test in nix-shell

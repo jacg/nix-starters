@@ -49,8 +49,8 @@
                     rust-tcfile  = final.rust-bin.fromRustupToolchainFile ./rust-toolchain;
                     rust-latest  = final.rust-bin.stable .latest      ;
                     rust-beta    = final.rust-bin.beta   .latest      ;
-                    rust-nightly = final.rust-bin.nightly."2024-01-10";
-                    rust-stable  = final.rust-bin.stable ."1.75.0"    ; # nix flake lock --update-input rust-overlay
+                    rust-nightly = final.rust-bin.nightly."2024-03-03";
+                    rust-stable  = final.rust-bin.stable ."1.76.0"    ; # nix flake lock --update-input rust-overlay
                     rust-analyzer-preview-on = date:
                       final.rust-bin.nightly.${date}.default.override {
                         extensions = [ "rust-analyzer-preview" ];
@@ -67,7 +67,7 @@
                         # extensions = [];
                         # targets = [ "wasm32-unknown-unknown" ];
                       };
-                      rust-analyzer-preview = rust-analyzer-preview-on "2024-01-10";
+                      rust-analyzer-preview = rust-analyzer-preview-on "2024-03-03";
                       rust-src = rust-stable.rust-src;
                     })
               ];

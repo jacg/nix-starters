@@ -51,6 +51,7 @@
               buildInputs = [
                 pkgs.rust-tools
                 pkgs.cargo-nextest
+                pkgs.bacon
                 pkgs.just
                 pkgs.cowsay
               ];

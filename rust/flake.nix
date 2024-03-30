@@ -34,53 +34,22 @@
     # Option 2: try to support selected systems
     # flake-utils.lib.eachSystem ["x86_64-linux" "i686-linux" "aarch64-linux" "x86_64-darwin"]
       (system:
-
         let
-          date = "2024-03-03";
           pkgs = import nixpkgs {
               inherit system;
-
               overlays = [
                 # ===== Specification of the rust toolchain to be used ====================
                 rust-overlay.overlays.default (final: prev:
-                  let
-                    # If you have a rust-toolchain file for rustup, set `choice =
-                    # rust-tcfile` further down to get the customized toolchain
-                    # derivation.
-                    rust-tcfile  = final.rust-bin.fromRustupToolchainFile ./rust-toolchain;
-                    rust-latest  = final.rust-bin.stable .latest      ;
-                    rust-beta    = final.rust-bin.beta   .latest      ;
-                    rust-nightly = final.rust-bin.nightly.${date}     ;
-                    rust-stable  = final.rust-bin.stable ."1.76.0"    ; # nix flake lock --update-input rust-overlay
-                    rust-analyzer-preview-on = date:
-                      final.rust-bin.nightly.${date}.default.override {
-                        extensions = [ "rust-analyzer-preview" ];
-                      };
-                  in
-                    rec {
-                      # The version of the Rust system to be used in buildInputs.
-                      # Set `choice` to `rust-<choice>` where `<choice>` is one of
-                      #   tcfile / latest / beta / nightly / stable
-                      # (see names set above)
-                      choice = rust-stable;
-
-                      rust-tools = choice.default.override {
-                        # extensions = [];
-                        # targets = [ "wasm32-unknown-unknown" ];
-                      };
-                      rust-analyzer-preview = rust-analyzer-preview-on date;
-                      rust-src = rust-stable.rust-src;
-                    })
+                  { rust-tools = final.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml; }
+                )
               ];
             };
-
         in
           {
             devShell = pkgs.mkShell {
               name = "my-rust-project";
               buildInputs = [
                 pkgs.rust-tools
-                pkgs.rust-analyzer-preview
                 pkgs.cargo-nextest
                 pkgs.just
                 pkgs.cowsay
@@ -96,7 +65,8 @@
                   alias bar='eza -l | lolcat'
                   alias baz='cowsay What is the difference between buildIntputs and packages? | lolcat'
                 '';
-              RUST_SRC_PATH = "${pkgs.rust-src}/lib/rustlib/src/rust/library";
+              # Requires "rust-src" to be present in components in ./rust-toolchain.toml
+              RUST_SRC_PATH = "${pkgs.rust-tools}/lib/rustlib/src/rust/library";
             };
           }
       );

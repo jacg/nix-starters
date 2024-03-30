@@ -1,0 +1,21 @@
+# https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file
+
+[toolchain]
+
+# You may need to run
+#
+#   nix flake lock --update-input rust-overlay
+#
+# when changing these to more recent versions
+channel = "1.77.1"
+#channel = "nightly-2024-03-03"
+
+# see https://rust-lang.github.io/rustup/concepts/profiles.html
+profile = "default"
+#profile = "minimal"
+
+
+# see https://rust-lang.github.io/rustup/concepts/components.html
+components = [ "rust-analyzer", "clippy", "rust-src", "rustfmt" ]
+
+#targets = [ "wasm32-unknown-unknown" ]

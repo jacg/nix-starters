@@ -35,9 +35,10 @@
     # flake-utils.lib.eachSystem ["x86_64-linux" "i686-linux" "aarch64-linux" "x86_64-darwin"]
       (system:
 
-        let pkgs = import nixpkgs {
+        let
+          date = "2024-03-03";
+          pkgs = import nixpkgs {
               inherit system;
-
 
               overlays = [
                 # ===== Specification of the rust toolchain to be used ====================
@@ -49,7 +50,7 @@
                     rust-tcfile  = final.rust-bin.fromRustupToolchainFile ./rust-toolchain;
                     rust-latest  = final.rust-bin.stable .latest      ;
                     rust-beta    = final.rust-bin.beta   .latest      ;
-                    rust-nightly = final.rust-bin.nightly."2024-03-03";
+                    rust-nightly = final.rust-bin.nightly.${date}     ;
                     rust-stable  = final.rust-bin.stable ."1.76.0"    ; # nix flake lock --update-input rust-overlay
                     rust-analyzer-preview-on = date:
                       final.rust-bin.nightly.${date}.default.override {
@@ -67,7 +68,7 @@
                         # extensions = [];
                         # targets = [ "wasm32-unknown-unknown" ];
                       };
-                      rust-analyzer-preview = rust-analyzer-preview-on "2024-03-03";
+                      rust-analyzer-preview = rust-analyzer-preview-on date;
                       rust-src = rust-stable.rust-src;
                     })
               ];

@@ -15,7 +15,7 @@
     #
     #    nix flake lock --update-input nixpkgs
 
-    nixpkgs     .url = "github:nixos/nixpkgs/nixos-23.11";
+    nixpkgs     .url = "github:nixos/nixpkgs/nixos-24.05";
     flake-utils .url = "github:numtide/flake-utils";
     flake-compat = {
       url = "github:edolstra/flake-compat";
@@ -50,8 +50,8 @@
         in
           rec {
 
-            #devShell = self.devShells.${ system }.python310; # does not need `rec`
-            devShell = devShells.python311;
+            #devShell = self.devShells.${ system }.python312; # does not need `rec`
+            devShell = devShells.python312;
 
             devShells =
               builtins.listToAttrs (
@@ -77,7 +77,7 @@
                          '';
                     };
                   }
-                ) [ "python39" "python310" "python311" ]
+                ) [ "python39" "python310" "python311" "python312" ]
               );
           }
       );

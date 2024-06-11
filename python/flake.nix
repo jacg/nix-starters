@@ -44,6 +44,7 @@
               (python.withPackages (ps: [
                 ps.pytest
                 ps.numpy
+                ps.python-lsp-server
             ])));
 
         in
@@ -64,7 +65,6 @@
                         pkgs.cowsay
                       ];
                       packages = [
-                        pkgs.python3Packages.python-lsp-server
                         pkgs.lolcat
                         pkgs.eza
                       ];

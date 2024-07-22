@@ -7,8 +7,8 @@
 #   nix flake lock --update-input rust-overlay
 #
 # when changing these to more recent versions
-channel = "1.78.0"
-#channel = "nightly-2024-03-03"
+channel = "1.79.0"
+#channel = "nightly-2024-07-21"
 
 # see https://rust-lang.github.io/rustup/concepts/profiles.html
 profile = "default"

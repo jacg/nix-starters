@@ -11,7 +11,7 @@
     #
     #    nix flake lock --update-input nixpkgs
 
-    nixpkgs     .url = "github:nixos/nixpkgs/nixos-24.05";
+    nixpkgs     .url = "github:nixos/nixpkgs/nixos-24.11";
     rust-overlay.url = "github:oxalica/rust-overlay";
     flake-utils .url = "github:numtide/flake-utils";
     flake-compat = {

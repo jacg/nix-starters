@@ -33,14 +33,17 @@
       (system:
         let
           pkgs = import nixpkgs {
-              inherit system;
-              overlays = [
-                # ===== Specification of the rust toolchain to be used ====================
-                rust-overlay.overlays.default (final: prev:
-                  { rust-tools = final.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml; }
-                )
-              ];
-            };
+            inherit system;
+            overlays = [
+              # Add rust-overlay
+              rust-overlay.overlays.default
+
+              # Configure custom rust toolchain
+              (final: prev: {
+                rust-tools = final.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+              })
+            ];
+          };
         in
           {
             devShell = pkgs.mkShell {

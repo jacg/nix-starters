@@ -1,21 +1,20 @@
-# The core functionality is provided here using flakes. Legacy support for
-# `nix-shell` is provided by a wrapper in `shell.nix`.
+# =============================================================================
+# This flake provides a Rust development environment tooling.
+# Legacy nix-shell support is available through the wrapper in `shell.nix`.
+# =============================================================================
 
 # TODO Hacking around the Qt problems
 # TODO PyPI package not in nixpkgs
-
 
 {
   description = "Python development environment";
 
   inputs = {
-
-    # Version pinning is managed in flake.lock. Upgrading can be done with
-    # something like
+    # Version pinning is managed in flake.lock.
+    # Upgrading can be done with `nix flake lock --update input <input-name>`
     #
     #    nix flake lock --update-input nixpkgs
-
-    nixpkgs     .url = "github:nixos/nixpkgs/nixos-24.11";
+    nixpkgs     .url = "github:nixos/nixpkgs/nixos-24.11"; # nix flake lock --update input nixpkgs
     flake-utils .url = "github:numtide/flake-utils";
     flake-compat = {
       url = "github:edolstra/flake-compat";
@@ -59,21 +58,16 @@
                   pythonVersion: {
                     name = pythonVersion;
                     value = pkgs.mkShell {
-                      buildInputs = [
+                      packages = [
                         (python-with-all-my-packages pkgs.${ pythonVersion })
                         pkgs.just
                         pkgs.cowsay
                       ];
-                      packages = [
-                        pkgs.lolcat
-                        pkgs.eza
-                      ];
-                      shellHook =
-                        ''
-          export PS1="${pythonVersion} devshell> "
-          alias foo='cowsay Foo'
-          alias bar='eza -l | lolcat'
-          alias baz='cowsay What is the difference between buildIntputs and packages? | lolcat'
+                      shellHook = ''
+                        export PS1="${pythonVersion} devshell> "
+
+                        # You could define aliases here
+                        alias testme='just test'
                          '';
                     };
                   }

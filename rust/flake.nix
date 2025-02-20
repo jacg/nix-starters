@@ -21,12 +21,15 @@
   };
 
   outputs = { self, nixpkgs, rust-overlay, flake-utils, ... }:
-
-    # Option 1: try to support each default system
-    flake-utils.lib.eachDefaultSystem # NB Some packages in nixpkgs are not supported on some systems
-
-    # Option 2: try to support selected systems
-    # flake-utils.lib.eachSystem ["x86_64-linux" "i686-linux" "aarch64-linux" "x86_64-darwin"]
+    # System selection options:
+    # 1. All default systems (some packages may not be available)
+    flake-utils.lib.eachDefaultSystem
+    # 2. Selected systems only:
+    # flake-utils.lib.eachSystem [
+    #   "x86_64-linux"
+    #   "aarch64-linux"
+    #   "x86_64-darwin"
+    # ]
       (system:
         let
           pkgs = import nixpkgs {

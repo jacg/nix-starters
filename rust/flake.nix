@@ -48,25 +48,24 @@
           {
             devShell = pkgs.mkShell {
               name = "my-rust-project";
-              buildInputs = [
-                pkgs.rust-tools
-                pkgs.cargo-nextest
-                pkgs.bacon
-                pkgs.just
-                pkgs.cowsay
-              ];
+
               packages = [
-                pkgs.lolcat
-                pkgs.eza
+                pkgs.rust-tools     # Our configured rust toolchain
+                pkgs.cargo-nextest  # Modern test runner
+                pkgs.bacon          # Background rust code checker
+                pkgs.just           # Command runner
               ];
-              shellHook =
-                ''
-                  export PS1="rust devshell> "
-                  alias foo='cowsay Foo'
-                  alias bar='eza -l | lolcat'
-                  alias baz='cowsay What is the difference between buildIntputs and packages? | lolcat'
-                '';
-              # Requires "rust-src" to be present in components in ./rust-toolchain.toml
+
+              # Shell configuration
+              shellHook = ''
+                # Customize prompt
+                export PS1="rust devshell> "
+
+                # You could define aliases here
+                alias testme='just test'
+              '';
+
+              # Enable rust-analyzer support (requires rust-src component in rust-toolchain.toml)
               RUST_SRC_PATH = "${pkgs.rust-tools}/lib/rustlib/src/rust/library";
             };
           }

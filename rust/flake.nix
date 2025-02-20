@@ -1,6 +1,7 @@
-# The core functionality is provided here using flakes. Legacy support for
-# `nix-shell` is provided by a wrapper in `shell.nix`.
-
+# =============================================================================
+# This flake provides a Rust development environment tooling.
+# Legacy nix-shell support is available through the wrapper in `shell.nix`.
+# =============================================================================
 {
   description = "Rust development environment";
 

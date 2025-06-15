@@ -10,7 +10,7 @@
     # Upgrading can be done with `nix flake lock --update input <input-name>`
     #
     #    nix flake lock --update-input nixpkgs
-    nixpkgs.url      = "github:nixos/nixpkgs/nixos-24.11"; # nix flake lock --update input nixpkgs
+    nixpkgs.url      = "github:nixos/nixpkgs/nixos-25.05"; # nix flake lock --update input nixpkgs
     rust-overlay.url = "github:oxalica/rust-overlay";      # nix flake lock --update input rust-overlay
     flake-utils.url  = "github:numtide/flake-utils";
     # Support for legacy nix-shell

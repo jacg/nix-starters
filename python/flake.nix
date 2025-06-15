@@ -1,5 +1,5 @@
 # =============================================================================
-# This flake provides a Rust development environment tooling.
+# This flake provides a Python development environment tooling.
 # Legacy nix-shell support is available through the wrapper in `shell.nix`.
 # =============================================================================
 

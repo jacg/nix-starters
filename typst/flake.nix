@@ -20,8 +20,10 @@
           packages = [
             pkgs.just
             pkgs.typst
-            #pkgs.typst-lsp
             pkgs.evince
+            # pkgs.typst-lsp
+            # pkgs.tinymist
+            # pkgs.typst-preview
           ];
         };
       };

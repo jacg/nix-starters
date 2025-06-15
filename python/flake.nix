@@ -14,7 +14,7 @@
     # Upgrading can be done with `nix flake lock --update input <input-name>`
     #
     #    nix flake lock --update-input nixpkgs
-    nixpkgs     .url = "github:nixos/nixpkgs/nixos-24.11"; # nix flake lock --update input nixpkgs
+    nixpkgs     .url = "github:nixos/nixpkgs/nixos-25.05"; # nix flake lock --update input nixpkgs
     flake-utils .url = "github:numtide/flake-utils";
     flake-compat = {
       url = "github:edolstra/flake-compat";

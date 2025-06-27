@@ -67,6 +67,7 @@
 
               # Enable rust-analyzer support (requires rust-src component in rust-toolchain.toml)
               RUST_SRC_PATH = "${pkgs.rust-tools}/lib/rustlib/src/rust/library";
+              # If version unavailable, try `nix flake lock --update input rust-overlay`
             };
           }
       );

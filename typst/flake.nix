@@ -13,18 +13,28 @@
         config.allowUnfree = true;
         overlays = [];
       };
+
     in
       {
         devShell.${system} = pkgs.mkShell {
-          name = "typst-user";
+          name = "typst-tools";
           packages = [
-            pkgs.just
             pkgs.typst
-            pkgs.evince
-            # pkgs.typst-lsp
-            # pkgs.tinymist
-            # pkgs.typst-preview
+            pkgs.tinymist # LSP server
+            pkgs.tree-sitter.builtGrammars.tree-sitter-typst # Grammar for Emacs typst-ts-mode
+            pkgs.just
+            pkgs.evince # Optional: used in justfile
           ];
+
+          shellHook = ''
+            echo "Typst tools loaded!"
+            echo "- Typst compiler: $(typst --version)"
+            echo "- Tinymist LSP server: $(tinymist --version)"
+
+            # Make tree-sitter grammar available to existing Emacs
+            export TREE_SITTER_LIBRARY_PATH="${pkgs.tree-sitter.builtGrammars.tree-sitter-typst}/lib"
+          '';
+
         };
       };
 }

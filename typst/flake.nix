@@ -14,6 +14,8 @@
         overlays = [];
       };
 
+      fonts = [ pkgs.fira pkgs.fira-code ];
+
     in
       {
         devShell.${system} = pkgs.mkShell {
@@ -24,8 +26,8 @@
             pkgs.tree-sitter.builtGrammars.tree-sitter-typst # Grammar for Emacs typst-ts-mode
             pkgs.just
             pkgs.evince # Optional: used in justfile
-          ];
 
+          ] ++ fonts;
           shellHook = ''
             echo "Typst tools loaded!"
             echo "- Typst compiler: $(typst --version)"
@@ -33,6 +35,8 @@
 
             # Make tree-sitter grammar available to existing Emacs
             export TREE_SITTER_LIBRARY_PATH="${pkgs.tree-sitter.builtGrammars.tree-sitter-typst}/lib"
+            # Make extra fonts available to fontconfig
+            export FONTCONFIG_FILE="${pkgs.makeFontsConf { fontDirectories = fonts; }}"
           '';
 
         };

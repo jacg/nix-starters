@@ -1,6 +1,7 @@
 # -*-Makefile-*-
 
-dev:
-    typst compile thingy.typ
-    evince thingy.pdf &
-    typst watch thingy.typ
+
+work file="thingy":
+    typst compile {{file}}.typ
+    evince {{file}}.pdf &
+    typst watch {{file}}.typ

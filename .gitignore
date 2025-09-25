@@ -1,3 +1,5 @@
 __pycache__
 .direnv
 /rust/target/
+/c++
+/geant4

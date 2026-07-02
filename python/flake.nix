@@ -14,7 +14,7 @@
     # Upgrading can be done with `nix flake lock --update input <input-name>`
     #
     #    nix flake lock --update-input nixpkgs
-    nixpkgs     .url = "github:nixos/nixpkgs/nixos-25.05"; # nix flake lock --update input nixpkgs
+    nixpkgs     .url = "github:nixos/nixpkgs/nixos-26.05"; # nix flake update nixpkgs
     flake-utils .url = "github:numtide/flake-utils";
     flake-compat = {
       url = "github:edolstra/flake-compat";
@@ -49,8 +49,8 @@
         in
           rec {
 
-            #devShell = self.devShells.${ system }.python313; # does not need `rec`
-            devShell = devShells.python313;
+            #devShell = self.devShells.${ system }.python314; # does not need `rec`
+            devShell = devShells.python314;
 
             devShells =
               builtins.listToAttrs (
@@ -71,7 +71,7 @@
                          '';
                     };
                   }
-                ) [ "python311" "python312" "python313" ]
+                ) [ "python312" "python313" "python314" ]
               );
           }
       );

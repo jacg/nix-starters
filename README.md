@@ -15,6 +15,9 @@ replacing
 + `./target-directory` with the name of the (not yet existing) directory in
   which you want the project to be created.
 
+To let Claude Code loose on a project without letting it loose on your machine,
+see [Sandboxed Claude Code](#sandboxed-claude-code) below.
+
 # Use Nix to provide isolated, per-project, declarative definitions of dependencies for projects in various languages
 
 + Key assumptions:
@@ -92,6 +95,38 @@ The details will vary to some extent from language to language. Broadly speaking
 **BEWARE** the git config has contains my name and email address! So make sure to edit `home-manager/gitconfig` before deploying.
 
 See `home-manager/README.md` for details. TODO: README does not exist yet.
+
+## Sandboxed Claude Code
+
+`agent/` is a flake that runs Claude Code under an explicit policy: the agent
+sees the directory you launch it from, the Nix store and daemon, and
+`~/.claude` — nothing else — and reaches only an allowlist of domains. Try it
+on any project, Nix or not, from that project's root:
+
+``` shell
+nix run github:jacg/nix-starters?dir=agent#claude-sandboxed -- --dangerously-skip-permissions
+```
+
+Log in once with a normal `claude` first; the sandbox reuses those credentials.
+
+For a project of your own, add it as an input and let the project contribute
+only its own tools and domains:
+
+``` nix
+inputs.agent.url = "github:jacg/nix-starters?dir=agent";
+
+devShells.agent = agent.lib.${system}.mkAgentShell {
+  packages = projectPackages;
+  domains  = { "crates.io" = [ "GET" "HEAD" ]; };
+};
+```
+
+There is a third mode for projects you share with people who want neither Nix
+nor agents, which puts nothing into the shared repository. See
+[agent/README.md](agent/README.md) for that, for how to discover which domains
+a project needs, and for what this adds to
+[agent-sandbox.nix](https://github.com/archie-judd/agent-sandbox.nix), the
+sandbox it is built on.
 
 ## Pinning
 

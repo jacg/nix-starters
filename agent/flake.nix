@@ -73,6 +73,35 @@
             "*"             = [ "GET" "HEAD" ];
           };
 
+          # `nix shell nixpkgs#tool` inside the sandbox resolves `nixpkgs`
+          # through the global registry, whose entry is a channel tarball the
+          # policy does let through. Pin the ids anyway: resolution then needs
+          # no network at all, and the agent gets the nixpkgs this policy pins
+          # rather than whatever the channel said this morning.
+          #
+          # This replaces the global registry only. An entry for the same id in
+          # the user registry (~/.config/nix/registry.json, mounted rw) is
+          # consulted first and still wins.
+          flakeRegistry = pkgs.writeText "agent-flake-registry.json" (builtins.toJSON {
+            version = 2;
+            flakes  = [
+              # No network at all: this tree is already in the store, because
+              # this flake was evaluated from it.
+              { from = { type = "indirect"; id = "nixpkgs"; };
+                to   = { type = "path"; path = nixpkgs.outPath;
+                         inherit (nixpkgs) narHash lastModified; }; }
+
+              # The escape hatch, for when the pin is too old. Deliberately a
+              # branch and not a revision: a pinned "unstable" is stale by
+              # construction, and embedding a second nixpkgs tree would put
+              # 205 MiB into the closure of a sandbox that may never use it.
+              # Costs a GET on first use, which the allowlist floor serves.
+              { from = { type = "indirect"; id = "nixpkgs-unstable"; };
+                to   = { type = "github"; owner = "nixos"; repo = "nixpkgs";
+                         ref = "nixos-unstable"; }; }
+            ];
+          });
+
           # Claude Code keeps its onboarding state in ~/.claude.json unless this
           # is set, in which case that file lives inside the directory instead.
           # The sandbox needs it there (only ~/.claude is mounted), and the host
@@ -109,7 +138,10 @@
                 "/etc/nix/nix.conf"        # inherit host nix config (flakes, caches)
               ];
               env = {
-                CLAUDE_CONFIG_DIR = "$HOME/.claude"; # see claudeConfigDir above
+                CLAUDE_CONFIG_DIR = "$HOME/.claude";                     # see claudeConfigDir above
+                # Overrides this one setting; /etc/nix/nix.conf, bound in
+                # roFiles, still supplies the rest.
+                NIX_CONFIG        = "flake-registry = ${flakeRegistry}"; # see flakeRegistry above
               };
               allowedDomains = if unrestricted
                                then { "*" = "*"; }

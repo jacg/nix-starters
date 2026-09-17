@@ -115,6 +115,23 @@ nothing else.
 This costs less than it appears, because `allowNix` lets the agent materialise
 any environment for itself — which is all mode 3 does.
 
+## Which nixpkgs the agent gets
+
+`nixpkgs` is pinned, in the sandbox's own flake registry, to the very tree this
+flake was evaluated from. `nix shell nixpkgs#tool` therefore resolves with no
+network at all, and resolves to the same nixpkgs the policy pins rather than to
+whatever the channel said this morning.
+
+`nixpkgs-unstable` is there too, as the escape hatch for when the pin is too
+old. It is deliberately *not* pinned — a frozen "unstable" is stale by
+construction — so it costs a fetch on first use.
+
+Two consequences worth knowing. The pinned tree becomes part of the sandbox's
+closure (about 200 MiB), though not an extra download: evaluating this flake
+already required it. And only the *global* registry is replaced, so an entry
+for either id in your user registry (`~/.config/nix/registry.json`, which the
+sandbox mounts) is consulted first and still wins.
+
 ## The network policy
 
 The baseline grants **GET and HEAD to every domain**, and Anthropic's endpoints
@@ -149,7 +166,9 @@ hosts instead — what a session actually needs is not obvious. Build the sandbo
 once with `unrestricted = true`, exercise the workflow, and read `proxy.log`.
 Watch for redirects while reading it: an allowed host that 302s to one you have
 not allowed fails at the redirect, and the log names the first host, not the
-destination.
+destination. The `nixpkgs` channel tarball would be exactly this —
+`channels.nixos.org` allowed, `releases.nixos.org` where it lands — which the
+registry pin above sidesteps independently of the policy.
 
 ## Authentication
 

@@ -30,22 +30,30 @@
   description = "Claude Code in a sandbox: agent policy composable with any project";
 
   inputs = {
-    nixpkgs      .url = "github:nixos/nixpkgs/nixos-26.05";
-    flake-utils  .url = "github:numtide/flake-utils";
-    agent-sandbox.url = "github:archie-judd/agent-sandbox.nix";
+    nixpkgs        .url = "github:nixos/nixpkgs/nixos-26.05";
+    flake-utils    .url = "github:numtide/flake-utils";
+    agent-sandbox  .url = "github:archie-judd/agent-sandbox.nix";
+
+    # claude-code itself does not come from the nixpkgs pin above: nixpkgs
+    # only bumps it at nixpkgs' own pace, which lags Anthropic's releases by
+    # however long since this flake's nixpkgs input was last updated. This
+    # input tracks Anthropic's npm releases directly (hourly checks, built
+    # and smoke-tested, auto-merged) so the sandbox's Claude Code — and the
+    # models it knows how to talk to — stays current. See "Where claude-code
+    # comes from" in README.md for the trust tradeoff this implies.
+    claude-code-nix.url = "github:sadjow/claude-code-nix";
   };
 
-  outputs = { self, nixpkgs, flake-utils, agent-sandbox }:
+  outputs = { self, nixpkgs, flake-utils, agent-sandbox, claude-code-nix }:
     flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" ]
       (system:
         let
-          # Own nixpkgs import, so consuming projects need no unfree predicate:
-          # claude-code is the only unfree package involved and it is this
-          # flake's business.
-          pkgs = import nixpkgs {
-            inherit system;
-            config.allowUnfreePredicate = pkg: pkgs.lib.getName pkg == "claude-code";
-          };
+          pkgs = import nixpkgs { inherit system; };
+
+          # claude-code-nix sets allowUnfree in its own nixpkgs import, so
+          # nothing needs doing here for it; this flake's own pkgs above never
+          # touches an unfree package.
+          claudeCode = claude-code-nix.packages.${system}.default;
 
           sbx = agent-sandbox.lib.${system};
 
@@ -164,7 +172,7 @@
             , unrestricted ? false  # every method everywhere; see baselineDomains
             }:
             guardIdentity (sbx.mkSandbox {
-              pkg              = pkgs.claude-code;
+              pkg              = claudeCode;
               binName          = "claude";
               outName          = "claude-sandboxed";
               allowedPackages  = baselineTools ++ packages;
@@ -246,7 +254,7 @@
               name     = "claude-agent";
               packages = packages ++ [
                 (mkClaudeSandboxed { inherit packages domains unrestricted; })
-                pkgs.claude-code   # unsandboxed, for the one-off `claude` login on the host
+                claudeCode   # unsandboxed, for the one-off `claude` login on the host
               ];
               shellHook = claudeConfigDir + loginHint + (shell.shellHook or "");
             } // builtins.removeAttrs shell [ "shellHook" ]);

@@ -42,9 +42,11 @@ run Claude outside the sandbox you must set this globally yourself. Here the
 dev shell exports it, so host and sandbox agree without anything in
 `~/.bashrc`; if they disagree, every launch re-runs the onboarding wizard.
 
-**Unfree stays contained.** `claude-code` is unfree. This flake imports its own
-nixpkgs with a predicate scoped to that single package, so consuming projects
-need no `allowUnfree` configuration of their own.
+**Unfree stays contained.** `claude-code` is unfree. It comes from
+[claude-code-nix](https://github.com/sadjow/claude-code-nix) (see
+[Where claude-code comes from](#where-claude-code-comes-from)), which sets
+`allowUnfree` in its own nixpkgs import, so consuming projects need no
+`allowUnfree` configuration of their own.
 
 **It works on projects with no Nix in them, and on projects that are not
 yours** — modes 2 and 3 below.
@@ -131,6 +133,34 @@ closure (about 200 MiB), though not an extra download: evaluating this flake
 already required it. And only the *global* registry is replaced, so an entry
 for either id in your user registry (`~/.config/nix/registry.json`, which the
 sandbox mounts) is consulted first and still wins.
+
+## Where `claude-code` comes from
+
+Not from the nixpkgs pin above. `claude-code` comes from a separate input,
+[claude-code-nix](https://github.com/sadjow/claude-code-nix), which tracks
+Anthropic's npm releases directly: an hourly check, a build and smoke test on
+each new version, auto-merged with no human in the loop. New releases —
+including new models — typically show up within about half an hour of
+Anthropic publishing them, rather than waiting on nixpkgs' own bump cadence.
+
+This is a deliberate choice of trust surface, not a free lunch. `claude-code`
+is closed-source and shipped as a bundled npm package, so "nixpkgs reviews the
+update" was never much more than "a maintainer clicks merge once CI shows it
+still builds" — the same shallow gate `claude-code-nix`'s automation applies,
+just slower. What you gain by pinning nixpkgs instead is one fewer
+independent party in the supply chain (no second repo's CI/secrets to trust)
+and one update cadence instead of two; what you gain from `claude-code-nix` is
+staying current. This flake takes the latter.
+
+`claude-code-nix`'s `main` is a moving ref: `flake.lock` here still pins one
+resolved commit, so nothing changes underfoot between shell entries. Getting a
+newer build is explicit, same as any other input. The input belongs to
+`agent/flake.nix`, not the repository's top-level flake, so point the command
+at that directory (or run it from inside `agent/`):
+
+```sh
+nix flake update claude-code-nix --flake ./agent
+```
 
 ## The network policy
 

@@ -133,9 +133,20 @@
                 "$HOME/.config/nix"       # launch re-fetches the flake registry
                 "$HOME/.local/share/nix"
               ];
+              # Identity, so commits are correctly attributed. Both are needed:
+              # jj does not read git's config for user.name/user.email, and a
+              # jj repo committed to without its own config gets the *empty*
+              # identity — which looks fine locally and is refused by every
+              # remote. The file, not the $HOME/.config/jj directory: jj writes
+              # `repos/` beside its config on first use in a repo, and wants
+              # that writable. Anything in conf.d/ is therefore not carried in.
+              #
+              # Both paths must exist on the host — a declared bind that does
+              # not is refused at launch, by design.
               roFiles = [
-                "$HOME/.config/git/config" # git identity for correctly attributed commits
-                "/etc/nix/nix.conf"        # inherit host nix config (flakes, caches)
+                "$HOME/.config/git/config"      # git identity
+                "$HOME/.config/jj/config.toml"  # jj identity
+                "/etc/nix/nix.conf"             # inherit host nix config (flakes, caches)
               ];
               env = {
                 CLAUDE_CONFIG_DIR = "$HOME/.claude";                     # see claudeConfigDir above

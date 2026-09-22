@@ -49,6 +49,14 @@
 
           sbx = agent-sandbox.lib.${system};
 
+          # agent-sandbox's commonTools carries git but not jj. Since the
+          # sandbox launches with `env -i`, nothing on the host PATH carries
+          # in: whatever is not named here is simply absent, and the agent
+          # silently falls back to git in a repo where jj is the tool. This is
+          # baseline personal policy, not a project's business, so it belongs
+          # beside commonTools rather than in the per-project `packages`.
+          baselineTools = sbx.commonTools ++ [ pkgs.jujutsu ];
+
           # Read the whole internet; write nowhere but Anthropic.
           #
           # Documentation lives on hosts no list can enumerate in advance, and
@@ -121,7 +129,7 @@
               pkg              = pkgs.claude-code;
               binName          = "claude";
               outName          = "claude-sandboxed";
-              allowedPackages  = sbx.commonTools ++ packages;
+              allowedPackages  = baselineTools ++ packages;
               # The agent must test in exactly the environment humans test in:
               # give it the host Nix daemon and store so it can run
               # `nix develop -c ...`.

@@ -2,3 +2,46 @@
 
 test colours='':
      pytest -v {{colours}}
+
+# Something won't install, or installs but won't run? Start at the top.
+rescue:
+     #!/usr/bin/env bash
+     echo
+     echo "  Start at RUNG 1. Stop as soon as it works."
+     echo
+     echo "  RUNG 1 -- the package is in nixpkgs (check search.nixos.org)"
+     echo "     Add it to python-with-all-my-packages in flake.nix, then"
+     echo "     leave the directory and come back (or: direnv reload)."
+     echo "     This is the only rung that is reproducible."
+     echo
+     echo "  RUNG 2 -- the package is on PyPI   <-- START HERE IN AN EMERGENCY"
+     echo "     uv venv --system-site-packages"
+     echo "     . .venv/bin/activate"
+     echo "     uv pip install THE-PACKAGE"
+     echo
+     echo "     --system-site-packages keeps the numpy/scipy you already have,"
+     echo "     which are better built than the ones PyPI would give you."
+     echo "     If a wheel complains that some libFoo.so.N is missing, that"
+     echo "     library needs adding to wheel-libs in flake.nix."
+     echo
+     echo "  RUNG 3 -- you need conda itself: an environment.yml you were"
+     echo "            given, a conda-only package, or a peer's exact recipe."
+     if [ -e /lib64/ld-linux-x86-64.so.2 ]; then
+       echo "     micromamba create -n rescue python=3.12 THE-PACKAGE"
+       echo "     micromamba activate rescue"
+       echo
+       echo "     Inside that environment you are running conda's own Python,"
+       echo "     not this project's. Treat it as a separate world."
+     else
+       echo "     NOT AVAILABLE ON THIS MACHINE -- nix-ld is not enabled, so"
+       echo "     conda's own Python cannot start here. micromamba is on PATH"
+       echo "     and would appear to install things successfully, which would"
+       echo "     then fail to run with a confusing 'No such file or directory'."
+       echo "     Do not go down this road tonight. See README.md, and ask"
+       echo "     whoever set up this laptop to enable programs.nix-ld."
+     fi
+     echo
+     echo "  Rungs 2 and 3 record nothing: next week, or on another machine,"
+     echo "  you will not get the same environment. Fine for tonight. Say so"
+     echo "  afterwards, so rung 1 can be fixed properly."
+     echo

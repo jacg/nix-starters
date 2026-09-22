@@ -120,12 +120,50 @@
             export CLAUDE_CONFIG_DIR="$HOME/.claude"
           '';
 
+          # Identity is read from the host git config at launch — see `env` in
+          # mkClaudeSandboxed — rather than mounted. Mounting it cannot be made
+          # to work in general: a dotfile that home-manager links back out of
+          # the store is dropped by the launcher without a word ("a symlink is
+          # a name, not an access grant"), which is exactly what happens to a
+          # jj config kept in a config repo. Reading the value on the host,
+          # before the sandbox exists, is indifferent to how anyone's dotfiles
+          # are arranged.
+          gitBin = "${pkgs.git}/bin/git";
+
+          # An absent identity would otherwise be handed over as the empty
+          # string, which jj takes in silence and every remote later refuses.
+          # Fail at launch instead.
+          #
+          # A wrapper rather than a check inside the env expressions: the
+          # launcher evaluates those as `printf '%s' <expr>`, whose exit status
+          # is printf's, so a failing `git config` inside a command
+          # substitution is swallowed and the empty value sails through.
+          guardIdentity = sandbox:
+            pkgs.writeShellScriptBin "claude-sandboxed" ''
+              name=$(${gitBin} config user.name  || true)
+              mail=$(${gitBin} config user.email || true)
+              if [ -z "$name" ] || [ -z "$mail" ]; then
+                {
+                  echo "claude-sandboxed: no git identity configured on this host."
+                  echo
+                  echo "  The sandbox gives the agent both its git and its jj identity from"
+                  echo "  here, so commits made inside would carry the empty identity: they"
+                  echo "  look ordinary in the log, and every remote refuses them."
+                  echo
+                  echo "    git config --global user.name  'Your Name'"
+                  echo "    git config --global user.email 'you@example.com'"
+                } >&2
+                exit 1
+              fi
+              exec ${sandbox}/bin/claude-sandboxed "$@"
+            '';
+
           mkClaudeSandboxed =
             { packages     ? [ ]    # on the sandbox PATH, beside sbx.commonTools
             , domains      ? { }    # merged over baselineDomains
             , unrestricted ? false  # every method everywhere; see baselineDomains
             }:
-            sbx.mkSandbox {
+            guardIdentity (sbx.mkSandbox {
               pkg              = pkgs.claude-code;
               binName          = "claude";
               outName          = "claude-sandboxed";
@@ -141,20 +179,49 @@
                 "$HOME/.config/nix"       # launch re-fetches the flake registry
                 "$HOME/.local/share/nix"
               ];
+              # No identity files here: identity arrives through `env` below.
+              # Mounting it was both fragile and hostile to anyone else — a
+              # declared path absent on the host refuses the launch, so the
+              # previous "$HOME/.config/git/config" entry quietly required
+              # every user of this flake to keep git config at exactly that
+              # path, and the jj entry beside it never bound at all.
               roFiles = [
-                "$HOME/.config/git/config" # git identity for correctly attributed commits
-                "/etc/nix/nix.conf"        # inherit host nix config (flakes, caches)
+                "/etc/nix/nix.conf"             # inherit host nix config (flakes, caches)
               ];
               env = {
                 CLAUDE_CONFIG_DIR = "$HOME/.claude";                     # see claudeConfigDir above
                 # Overrides this one setting; /etc/nix/nix.conf, bound in
                 # roFiles, still supplies the rest.
                 NIX_CONFIG        = "flake-registry = ${flakeRegistry}"; # see flakeRegistry above
+
+                # Identity, read from the host git config as the sandbox
+                # launches; guardIdentity has already refused the launch if
+                # either is empty.
+                #
+                # Do not add quotes of your own. Each value is evaluated as
+                # `printf '%s' <expr>`, which would word-split a bare
+                # substitution and render "Ada Lovelace" as "AdaLovelace" —
+                # but the generated env file already emits every value as a
+                # quoted string, so the splitting cannot happen, and an extra
+                # pair lands *inside* the value as literal `"` characters.
+                #
+                # jj does not read git's config, so it must be told separately.
+                JJ_USER            = "$(${gitBin} config user.name)";
+                JJ_EMAIL           = "$(${gitBin} config user.email)";
+
+                # GIT_CONFIG_* rather than GIT_AUTHOR_*: this form is visible
+                # to `git config`, so anything that reads identity that way
+                # sees it too, and it covers committer as well as author.
+                GIT_CONFIG_COUNT   = "2";
+                GIT_CONFIG_KEY_0   = "user.name";
+                GIT_CONFIG_VALUE_0 = "$(${gitBin} config user.name)";
+                GIT_CONFIG_KEY_1   = "user.email";
+                GIT_CONFIG_VALUE_1 = "$(${gitBin} config user.email)";
               };
               allowedDomains = if unrestricted
                                then { "*" = "*"; }
                                else baselineDomains // domains;
-            };
+            });
 
           loginHint = ''
             if [ -f "$CLAUDE_CONFIG_DIR/.credentials.json" ]

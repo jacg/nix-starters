@@ -138,15 +138,33 @@
           # are arranged.
           gitBin = "${pkgs.git}/bin/git";
 
-          # An absent identity would otherwise be handed over as the empty
-          # string, which jj takes in silence and every remote later refuses.
-          # Fail at launch instead.
+          jjBin = "${pkgs.jujutsu}/bin/jj";
+
+          # Everything the host must work out before the sandbox exists.
           #
-          # A wrapper rather than a check inside the env expressions: the
-          # launcher evaluates those as `printf '%s' <expr>`, whose exit status
-          # is printf's, so a failing `git config` inside a command
-          # substitution is swallowed and the empty value sails through.
-          guardIdentity = sandbox:
+          # Identity. An absent identity would otherwise be handed over as the
+          # empty string, which jj takes in silence and every remote later
+          # refuses. Fail at launch instead. A wrapper rather than a check
+          # inside the env expressions: the launcher evaluates those as
+          # `printf '%s' <expr>`, whose exit status is printf's, so a failing
+          # `git config` inside a command substitution is swallowed and the
+          # empty value sails through.
+          #
+          # The jj repository. Launched from a subdirectory of a work tree,
+          # agent-sandbox binds the work tree root read-only and gives .git
+          # back read-write, but knows nothing of .jj, so jj cannot record a
+          # single operation. The root bind comes before every declared one,
+          # so a rwDirs entry for the root's .jj layers over it; a declared
+          # path expands variables but runs no commands, hence AGENT_JJ_DIR.
+          #
+          # Only where agent-sandbox exposes the work tree root: a colocated
+          # repo whose root is git's too, and not the home directory or above
+          # it, which agent-sandbox refuses to expose. Anywhere else the agent
+          # would see .jj but not the files around the launch directory, and
+          # its first snapshot would record them all as deleted. A declared
+          # path that does not exist refuses the launch, so the fallback is
+          # the launch directory, which is bound read-write already.
+          hostWrapper = sandbox:
             pkgs.writeShellScriptBin "claude-sandboxed" ''
               name=$(${gitBin} config user.name  || true)
               mail=$(${gitBin} config user.email || true)
@@ -163,6 +181,19 @@
                 } >&2
                 exit 1
               fi
+
+              AGENT_JJ_DIR=$PWD
+              if root=$(${jjBin} root --ignore-working-copy 2>/dev/null) \
+                 && [ -e "$root/.git" ] \
+                 && [ "$(${gitBin} rev-parse --show-toplevel 2>/dev/null)" = "$root" ]
+              then
+                case "$HOME/" in
+                  "$root"/*) ;;
+                  *) AGENT_JJ_DIR=$root/.jj ;;
+                esac
+              fi
+              export AGENT_JJ_DIR
+
               exec ${sandbox}/bin/claude-sandboxed "$@"
             '';
 
@@ -171,7 +202,7 @@
             , domains      ? { }    # merged over baselineDomains
             , unrestricted ? false  # every method everywhere; see baselineDomains
             }:
-            guardIdentity (sbx.mkSandbox {
+            hostWrapper (sbx.mkSandbox {
               pkg              = claudeCode;
               binName          = "claude";
               outName          = "claude-sandboxed";
@@ -186,6 +217,7 @@
                 "$HOME/.cache/nix"        # nix client state; without these every
                 "$HOME/.config/nix"       # launch re-fetches the flake registry
                 "$HOME/.local/share/nix"
+                "$AGENT_JJ_DIR"           # see hostWrapper above
               ];
               # No identity files here: identity arrives through `env` below.
               # Mounting it was both fragile and hostile to anyone else — a
@@ -203,7 +235,7 @@
                 NIX_CONFIG        = "flake-registry = ${flakeRegistry}"; # see flakeRegistry above
 
                 # Identity, read from the host git config as the sandbox
-                # launches; guardIdentity has already refused the launch if
+                # launches; hostWrapper has already refused the launch if
                 # either is empty.
                 #
                 # Do not add quotes of your own. Each value is evaluated as

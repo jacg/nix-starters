@@ -5,14 +5,20 @@ project, and shipped as a flake input so the decisions are made once rather
 than per project.
 
 The sandbox can write the directory it is launched from, the repository's
-`.git`, `~/.claude`, and Nix's per-user state (`~/.cache/nix`,
+`.git` and `.jj`, `~/.claude`, and Nix's per-user state (`~/.cache/nix`,
 `~/.config/nix`, `~/.local/share/nix`). It can read, in addition, the Nix store
 and daemon, `/etc/nix/nix.conf` and — when launched from a subdirectory of a
-repository — the whole work tree, not just the subdirectory. That last grant
-comes from agent-sandbox, which needs it so that `git status` does not report
-everything above the launch directory as deleted. It is read-only, and that
-includes the `.jj` directory at the root, so jj cannot commit from a
-subdirectory launch. Network access goes through a filtering proxy:
+git repository — the whole work tree, not just the subdirectory. That last
+grant comes from agent-sandbox, which needs it so that `git status` does not
+report everything above the launch directory as deleted. Outside a git
+repository nothing above the launch directory is visible.
+
+So a subdirectory launch confines writes, not reads. jj can commit from one,
+but anything that rewrites files above the launch directory — `jj edit`, or
+`jj new` onto another commit — fails there as it would for git; launch from
+the root for that. A jj repository that is not colocated with git gets no work
+tree grant at all, so jj is unavailable from its subdirectories. Network access
+goes through a filtering proxy:
 the agent may read the whole internet, and may *write* — POST and friends —
 only to hosts named explicitly.
 

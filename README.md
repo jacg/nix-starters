@@ -99,15 +99,17 @@ See `home-manager/README.md` for details. TODO: README does not exist yet.
 ## Sandboxed Claude Code
 
 `agent/` is a flake that runs Claude Code under an explicit policy: the agent
-sees the directory you launch it from, the Nix store and daemon, and
-`~/.claude` — nothing else — and reaches only an allowlist of domains. Try it
-on any project, Nix or not, from that project's root:
+sees the directory you launch it from, the Nix store and daemon, and a Claude
+config directory of its own — not your `~/.claude` — and may read the whole
+internet but write only to Anthropic. Try it on any project, Nix or not, from
+that project's root:
 
 ``` shell
 nix run github:jacg/nix-starters?dir=agent#claude-sandboxed -- --dangerously-skip-permissions
 ```
 
-Log in once with a normal `claude` first; the sandbox reuses those credentials.
+Log in once with `/login` inside the sandbox; it keeps its own credentials,
+separate from any host `claude`.
 
 For a project of your own, add it as an input and let the project contribute
 only its own tools and domains:

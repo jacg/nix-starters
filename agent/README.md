@@ -5,13 +5,14 @@ project, and shipped as a flake input so the decisions are made once rather
 than per project.
 
 The sandbox can write the directory it is launched from, the repository's
-`.git` and `.jj`, `~/.claude`, and Nix's per-user state (`~/.cache/nix`,
-`~/.config/nix`, `~/.local/share/nix`). It can read, in addition, the Nix store
-and daemon, `/etc/nix/nix.conf` and — when launched from a subdirectory of a
-git repository — the whole work tree, not just the subdirectory. That last
-grant comes from agent-sandbox, which needs it so that `git status` does not
-report everything above the launch directory as deleted. Outside a git
-repository nothing above the launch directory is visible.
+`.git` and `.jj`, a Claude config directory of its own
+(`~/.local/state/claude-sandboxed`, not your `~/.claude`), and Nix's per-user
+state (`~/.cache/nix`, `~/.config/nix`, `~/.local/share/nix`). It can read, in
+addition, the Nix store and daemon, `/etc/nix/nix.conf` and — when launched
+from a subdirectory of a git repository — the whole work tree, not just the
+subdirectory. That last grant comes from agent-sandbox, which needs it so that
+`git status` does not report everything above the launch directory as deleted.
+Outside a git repository nothing above the launch directory is visible.
 
 So a subdirectory launch confines writes, not reads. jj can commit from one,
 but anything that rewrites files above the launch directory — `jj edit`, or
@@ -43,17 +44,19 @@ arguments, most of them part of the security boundary. Here a project supplies
 `packages` and `domains`; mounts, Nix access and credentials are settled once,
 for every project at once.
 
-**One way to authenticate, not two overlapping ones.** Upstream supports an
-environment-variable token *or* the credential files a host login leaves in
-`~/.claude`, and its examples do both at once. Doing both is a trap:
-`CLAUDE_CODE_OAUTH_TOKEN` silently wins over the stored credentials and is
-never refreshed, so sessions start failing when it expires. This flake never
-sets it — see [Authentication](#authentication).
+**The sandbox cannot touch your host Claude setup.** Upstream mounts
+`~/.claude` read-write, shared with the host `claude`. Several files there are
+commands the host `claude` runs — hooks and the status line in
+`settings.json`, `mcpServers` in `.claude.json`, plugins, skills — so a
+sandboxed agent could plant code that runs outside the sandbox the next time
+you use `claude` on the host. Here the sandbox has a config directory of its
+own and logs in separately; see [Authentication](#authentication).
 
-**`CLAUDE_CONFIG_DIR` agreed on both sides.** Upstream notes that if you also
-run Claude outside the sandbox you must set this globally yourself. Here the
-dev shell exports it, so host and sandbox agree without anything in
-`~/.bashrc`; if they disagree, every launch re-runs the onboarding wizard.
+**One way to authenticate, not two overlapping ones.** Upstream supports an
+environment-variable token *or* stored credential files, and its examples do
+both at once. Doing both is a trap: `CLAUDE_CODE_OAUTH_TOKEN` silently wins
+over the stored credentials and is never refreshed, so sessions start failing
+when it expires. This flake never sets it.
 
 **Unfree stays contained.** `claude-code` is unfree. It comes from
 [claude-code-nix](https://github.com/sadjow/claude-code-nix) (see
@@ -226,10 +229,33 @@ registry pin above sidesteps independently of the policy.
 
 ## Authentication
 
-None to configure: log in once with the host `claude`, and the sandbox reads
-the stored credentials from `~/.claude` (mounted read-write, with
-`CLAUDE_CONFIG_DIR` pointing at it on both sides). Entering the shell tells you
-which of those two states you are in.
+Log in once, from inside the sandbox: launch `claude-sandboxed` and run
+`/login`. That is a second login to the same Anthropic account, alongside the
+one your host `claude` may already have — nothing on the Unix side changes.
+Entering the shell tells you whether it has been done.
+
+The sandbox keeps everything Claude stores — credentials, settings, history,
+per-project memory — in `${XDG_STATE_HOME:-~/.local/state}/claude-sandboxed`,
+which the launcher creates (mode 700) and mounts read-write in place of
+`~/.claude`. Your host `~/.claude` is not mounted at all. Why not share one
+login: the credentials file is rewritten on every token refresh, possibly by
+renaming a temporary file over it, which a file mounted on its own does not
+survive — and mounting the whole directory instead is what hands the sandbox
+your host configuration.
+
+One thing does cross, one way: your personal `CLAUDE.md` (from
+`${CLAUDE_CONFIG_DIR:-~/.claude}`) is copied into the sandbox's directory at
+every launch, so personal instructions apply in both. Edits made to it inside
+the sandbox are discarded at the next launch.
+
+**Moving from a shared `~/.claude`.** Sessions launched before this change kept
+their transcripts and per-project memory in `~/.claude/projects`. To carry
+them over, once, on the host:
+
+```sh
+mkdir -p -m 700 ~/.local/state/claude-sandboxed
+cp -a ~/.claude/projects ~/.local/state/claude-sandboxed/
+```
 
 Never export `CLAUDE_CODE_OAUTH_TOKEN`. It silently overrides the stored
 credentials and is never refreshed — and because the sandbox inherits it from
@@ -237,8 +263,7 @@ the launching shell, exporting it for something else is enough to break the
 agent later, in a way that looks like an expiry bug rather than a
 configuration one.
 
-The agent can read everything you hand it, credentials included. `~/.claude` is
-mounted read-write because that is how it logs in.
+The agent can read everything you hand it, its own credentials included.
 
 ## Arguments
 
@@ -257,14 +282,10 @@ itself.
 
 ## What the flake exposes
 
-- `lib.mkAgentShell` — a dev shell holding the sandboxed agent, the same
-  packages on the host side, and the unsandboxed `claude` for the one-off
-  login.
+- `lib.mkAgentShell` — a dev shell holding the sandboxed agent and the same
+  packages on the host side.
 - `lib.mkClaudeSandboxed` — the wrapped binary alone, for putting in a shell
   of your own.
-- `lib.claudeConfigDir` — the `export CLAUDE_CONFIG_DIR=...` line, so a
-  hand-rolled `shellHook` that runs the host `claude` can agree with the
-  sandbox.
 - `packages.claude-sandboxed` (also `packages.default`) — the generic sandbox
   used by mode 3.
 - `devShells.default` — `mkAgentShell { }`, the generic agent shell.

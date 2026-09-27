@@ -17,12 +17,11 @@
 # Nix evaluation time — entering a project dev shell and then launching a
 # generic sandbox would NOT carry the project's tools in.
 #
-# Authentication: none to configure. mkAgentShell exports CLAUDE_CONFIG_DIR so
-# the host `claude` (for logging in) and `claude-sandboxed` share ~/.claude,
-# which the sandbox mounts read-write; the agent reads the credentials Claude
-# Code stored there when you logged in on the host. Do NOT export
-# CLAUDE_CODE_OAUTH_TOKEN: it silently overrides those credentials and is
-# never refreshed.
+# Authentication: log in once, with /login inside the sandbox. The sandbox has
+# a Claude config directory of its own (see agentClaudeDir) and never sees the
+# host's ~/.claude, so the two logins, settings and memories are independent.
+# Do NOT export CLAUDE_CODE_OAUTH_TOKEN: it silently overrides the stored
+# credentials and is never refreshed.
 #
 # See README.md for the three ways to consume this flake.
 # =============================================================================
@@ -131,15 +130,20 @@
             ];
           });
 
-          # Claude Code keeps its onboarding state in ~/.claude.json unless this
-          # is set, in which case that file lives inside the directory instead.
-          # The sandbox needs it there (only ~/.claude is mounted), and the host
-          # copy must agree or every launch re-runs the setup wizard. Same value
-          # in mkClaudeSandboxed's env block and in every shellHook that might
-          # run the host `claude`, so nothing depends on ~/.bashrc.
-          claudeConfigDir = ''
-            export CLAUDE_CONFIG_DIR="$HOME/.claude"
-          '';
+          # The sandbox's own Claude config directory: its login, settings,
+          # history and memory. Deliberately not the host's ~/.claude. Several
+          # files there are commands the host `claude` runs (hooks and the
+          # status line in settings.json, mcpServers in .claude.json, plugins,
+          # skills), so a sandbox able to write them could plant code that runs
+          # outside it. Sharing only the credentials file is no way out either:
+          # Claude rewrites it on every token refresh, possibly by rename, which
+          # a bind-mounted single file does not survive. So the sandbox logs in
+          # separately, to the same account, and nothing is shared.
+          #
+          # CLAUDE_CONFIG_DIR puts .claude.json inside this directory too, which
+          # is what upstream recommends over mounting that file on its own.
+          # A shell expression, expanded on the host by hostWrapper.
+          agentClaudeDir = "\${XDG_STATE_HOME:-$HOME/.local/state}/claude-sandboxed";
 
           # Identity is read from the host git config at launch — see `env` in
           # mkClaudeSandboxed — rather than mounted. Mounting it cannot be made
@@ -153,36 +157,12 @@
 
           jjBin = "${pkgs.jujutsu}/bin/jj";
 
-          # Everything the host must work out before the sandbox exists.
-          #
-          # Identity. An absent identity would otherwise be handed over as the
-          # empty string, which jj takes in silence and every remote later
-          # refuses. Fail at launch instead. A wrapper rather than a check
-          # inside the env expressions: the launcher evaluates those as
-          # `printf '%s' <expr>`, whose exit status is printf's, so a failing
-          # `git config` inside a command substitution is swallowed and the
-          # empty value sails through.
-          #
-          # The jj repository. Launched from a subdirectory of a work tree,
-          # agent-sandbox binds the work tree root read-only and gives .git
-          # back read-write, but knows nothing of .jj, so jj cannot record a
-          # single operation. The root bind comes before every declared one,
-          # so a rwDirs entry for the root's .jj layers over it; a declared
-          # path expands variables but runs no commands, hence AGENT_JJ_DIR.
-          #
-          # Only where agent-sandbox exposes the work tree root: a colocated
-          # repo whose root is git's too, and not the home directory or above
-          # it, which agent-sandbox refuses to expose. Anywhere else the agent
-          # would see .jj but not the files around the launch directory, and
-          # its first snapshot would record them all as deleted. A declared
-          # path that does not exist refuses the launch, so the fallback is
-          # the launch directory, which is bound read-write already.
           # What every sandboxed session is told about the sandbox it runs in,
           # whatever the project. Through the launcher rather than memory,
-          # which is per project, or ~/.claude/CLAUDE.md, which the host
-          # `claude` reads too. Its purpose is economy, not enforcement: the
-          # policy holds whatever the agent believes, but an agent that does
-          # not know it spends tokens rediscovering it.
+          # which is per project, or CLAUDE.md, which is the user's own and is
+          # copied in from the host (see hostWrapper). Its purpose is economy,
+          # not enforcement: the policy holds whatever the agent believes, but
+          # an agent that does not know it spends tokens rediscovering it.
           sandboxPrompt = pkgs.writeText "agent-sandbox-prompt.md" ''
             # You are running inside a sandbox
 
@@ -213,6 +193,30 @@
               working around its absence.
           '';
 
+          # Everything the host must work out before the sandbox exists.
+          #
+          # Identity. An absent identity would otherwise be handed over as the
+          # empty string, which jj takes in silence and every remote later
+          # refuses. Fail at launch instead. A wrapper rather than a check
+          # inside the env expressions: the launcher evaluates those as
+          # `printf '%s' <expr>`, whose exit status is printf's, so a failing
+          # `git config` inside a command substitution is swallowed and the
+          # empty value sails through.
+          #
+          # The jj repository. Launched from a subdirectory of a work tree,
+          # agent-sandbox binds the work tree root read-only and gives .git
+          # back read-write, but knows nothing of .jj, so jj cannot record a
+          # single operation. The root bind comes before every declared one,
+          # so a rwDirs entry for the root's .jj layers over it; a declared
+          # path expands variables but runs no commands, hence AGENT_JJ_DIR.
+          #
+          # Only where agent-sandbox exposes the work tree root: a colocated
+          # repo whose root is git's too, and not the home directory or above
+          # it, which agent-sandbox refuses to expose. Anywhere else the agent
+          # would see .jj but not the files around the launch directory, and
+          # its first snapshot would record them all as deleted. A declared
+          # path that does not exist refuses the launch, so the fallback is
+          # the launch directory, which is bound read-write already.
           hostWrapper = sandbox:
             pkgs.writeShellScriptBin "claude-sandboxed" ''
               name=$(${gitBin} config user.name  || true)
@@ -243,6 +247,23 @@
               fi
               export AGENT_JJ_DIR
 
+              # See agentClaudeDir. Created here because a declared path absent
+              # on the host refuses the launch.
+              AGENT_CLAUDE_DIR=${agentClaudeDir}
+              mkdir -p -m 700 "$AGENT_CLAUDE_DIR"
+              export AGENT_CLAUDE_DIR
+
+              # The host's personal CLAUDE.md applies in the sandbox too, one
+              # way: copied afresh at every launch, so edits made inside do not
+              # stick. Removed first, because the sandbox can write this
+              # directory: a symlink planted in its place would otherwise turn
+              # the copy into a host write wherever it points.
+              hostMemory=''${CLAUDE_CONFIG_DIR:-$HOME/.claude}/CLAUDE.md
+              rm -rf -- "$AGENT_CLAUDE_DIR/CLAUDE.md"
+              if [ -f "$hostMemory" ]; then
+                cp -- "$hostMemory" "$AGENT_CLAUDE_DIR/CLAUDE.md"
+              fi
+
               exec ${sandbox}/bin/claude-sandboxed \
                 --append-system-prompt-file ${sandboxPrompt} "$@"
             '';
@@ -263,8 +284,8 @@
               allowNix         = true;
               allowUnixSockets = true;   # required by allowNix (daemon socket)
               rwDirs = [
-                "$HOME/.claude"
-                "$HOME/.cache/nix"        # nix client state; without these every
+                "$AGENT_CLAUDE_DIR"       # see agentClaudeDir above
+                "$HOME/.cache/nix"       # nix client state; without these every
                 "$HOME/.config/nix"       # launch re-fetches the flake registry
                 "$HOME/.local/share/nix"
                 "$AGENT_JJ_DIR"           # see hostWrapper above
@@ -279,7 +300,7 @@
                 "/etc/nix/nix.conf"             # inherit host nix config (flakes, caches)
               ];
               env = {
-                CLAUDE_CONFIG_DIR = "$HOME/.claude";                     # see claudeConfigDir above
+                CLAUDE_CONFIG_DIR = "$AGENT_CLAUDE_DIR";                 # see agentClaudeDir above
                 # Overrides this one setting; /etc/nix/nix.conf, bound in
                 # roFiles, still supplies the rest.
                 NIX_CONFIG        = "flake-registry = ${flakeRegistry}"; # see flakeRegistry above
@@ -314,14 +335,14 @@
             });
 
           loginHint = ''
-            if [ -f "$CLAUDE_CONFIG_DIR/.credentials.json" ]
+            if [ -f "${agentClaudeDir}/.credentials.json" ]
             then echo "Run: claude-sandboxed --dangerously-skip-permissions"
-            else echo "Not logged in. Run: claude   (once, outside the sandbox), then: claude-sandboxed --dangerously-skip-permissions"
+            else echo "Not logged in. Run: claude-sandboxed --dangerously-skip-permissions, then /login inside it (once)"
             fi
           '';
 
-          # A dev shell holding the sandboxed agent, the same packages on the
-          # host side, and the unsandboxed claude for the one-off host login.
+          # A dev shell holding the sandboxed agent and the same packages on
+          # the host side.
           # `shell` is merged into the mkShell arguments (extra env vars, name,
           # ...) and overrides them, except shellHook, which is appended to the
           # standard one. Do not pass `packages` through `shell`: it would
@@ -336,13 +357,12 @@
               name     = "claude-agent";
               packages = packages ++ [
                 (mkClaudeSandboxed { inherit packages domains unrestricted; })
-                claudeCode   # unsandboxed, for the one-off `claude` login on the host
               ];
-              shellHook = claudeConfigDir + loginHint + (shell.shellHook or "");
+              shellHook = loginHint + (shell.shellHook or "");
             } // builtins.removeAttrs shell [ "shellHook" ]);
         in
           {
-            lib = { inherit mkClaudeSandboxed mkAgentShell claudeConfigDir; };
+            lib = { inherit mkClaudeSandboxed mkAgentShell; };
 
             # For repositories that carry no Nix at all: from the project root,
             # `nix run <this-flake>#claude-sandboxed -- --dangerously-skip-permissions`.

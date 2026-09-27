@@ -1,0 +1,73 @@
+diff --git a/proxy/main.go b/proxy/main.go
+index 6748a21..4b17f1c 100644
+--- a/proxy/main.go
++++ b/proxy/main.go
+@@ -454,6 +454,17 @@ func hasRequestBody(req *http.Request) bool {
+ 	return false
+ }
+ 
++// isGitFetch reports whether req is the POST half of a git smart-HTTP fetch
++// (gitprotocol-http). Clients build that URL themselves, as $GIT_URL followed
++// by /git-upload-pack, so it is the same on every forge. The service only
++// reads the repository: wherever a policy grants GET, this is a read in
++// everything but method. Push is git-receive-pack and never matches.
++func isGitFetch(req *http.Request, method string) bool {
++	return method == "POST" &&
++		strings.HasSuffix(req.URL.Path, "/git-upload-pack") &&
++		req.Header.Get("Content-Type") == "application/x-git-upload-pack-request"
++}
++
+ // applyFilters returns an HTTP status code and reason if blocked, or 0 if
+ // allowed. Callers must check isDomainAllowed first.
+ func applyFilters(req *http.Request, host string, cfg Config) (int, string) {
+@@ -471,7 +482,8 @@ func applyFilters(req *http.Request, host string, cfg Config) (int, string) {
+ 	// Normalised once and used for every check below, so "-X get" cannot
+ 	// satisfy a GET policy and then skip the GET/HEAD restrictions.
+ 	normalizedMethod := strings.ToUpper(req.Method)
+-	if !isMethodAllowed(host, normalizedMethod, cfg) {
++	if !isMethodAllowed(host, normalizedMethod, cfg) &&
++		!(isGitFetch(req, normalizedMethod) && isMethodAllowed(host, "GET", cfg)) {
+ 		return http.StatusForbidden, "method not allowed"
+ 	}
+ 	if requestURLLength(req) > maxURLBytes {
+diff --git a/proxy/main_test.go b/proxy/main_test.go
+index c8cc44e..cc9d287 100644
+--- a/proxy/main_test.go
++++ b/proxy/main_test.go
+@@ -216,6 +216,36 @@ func TestApplyFilters(t *testing.T) {
+ 			raw:    "post /thing HTTP/1.1\r\nHost: example.com\r\nContent-Length: 5\r\n\r\nhello",
+ 			status: http.StatusForbidden,
+ 		},
++		{
++			name:   "git fetch allowed under a GET-only policy",
++			cfg:    getOnlyPolicy,
++			raw:    "POST /owner/repo.git/git-upload-pack HTTP/1.1\r\nHost: example.com\r\nContent-Type: application/x-git-upload-pack-request\r\nContent-Length: 5\r\n\r\nhello",
++			status: 0,
++		},
++		{
++			name:   "git push refused under a GET-only policy",
++			cfg:    getOnlyPolicy,
++			raw:    "POST /owner/repo.git/git-receive-pack HTTP/1.1\r\nHost: example.com\r\nContent-Type: application/x-git-receive-pack-request\r\nContent-Length: 5\r\n\r\nhello",
++			status: http.StatusForbidden,
++		},
++		{
++			name:   "git-upload-pack path without the git content type refused",
++			cfg:    getOnlyPolicy,
++			raw:    "POST /owner/repo.git/git-upload-pack HTTP/1.1\r\nHost: example.com\r\nContent-Type: application/json\r\nContent-Length: 5\r\n\r\nhello",
++			status: http.StatusForbidden,
++		},
++		{
++			name:   "git-upload-pack in the query string refused",
++			cfg:    getOnlyPolicy,
++			raw:    "POST /submit?next=/git-upload-pack HTTP/1.1\r\nHost: example.com\r\nContent-Type: application/x-git-upload-pack-request\r\nContent-Length: 5\r\n\r\nhello",
++			status: http.StatusForbidden,
++		},
++		{
++			name:   "git fetch refused where GET is not granted",
++			cfg:    Config{"example.com": {Methods: map[string]bool{"HEAD": true}}},
++			raw:    "POST /owner/repo.git/git-upload-pack HTTP/1.1\r\nHost: example.com\r\nContent-Type: application/x-git-upload-pack-request\r\nContent-Length: 5\r\n\r\nhello",
++			status: http.StatusForbidden,
++		},
+ 		{
+ 			name:   "WebSocket upgrade refused under a method policy",
+ 			cfg:    getOnlyPolicy,

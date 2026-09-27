@@ -187,6 +187,17 @@ PATCH, DELETE, WebSocket upgrades, and a request body on a GET or HEAD — so a
 read stays a read as far as the origin is concerned. The proxy remains in the
 path either way, and still logs every host the agent contacts to `proxy.log`.
 
+**One read is a POST: git's.** Fetching over smart HTTP — `git clone
+https://…`, and every cargo, pip or flake git dependency — POSTs to
+`…/git-upload-pack`, so a method floor alone breaks it on every forge. This
+flake patches agent-sandbox's proxy (`proxy-git-fetch.patch`) to let that one
+request through wherever GET is granted, identified by path *and* the git
+content type. Git builds that URL itself, so it is the same on every host;
+push is `…/git-receive-pack` and stays refused. The same rule has been
+proposed elsewhere — [docker/sbx-releases#239](https://github.com/docker/sbx-releases/issues/239)
+— and is not yet in agent-sandbox; the patch goes once upstream has an
+equivalent.
+
 The proxy prints a startup warning that a `"*"` entry is present, naming what
 it permits. Expected here, not a misconfiguration.
 

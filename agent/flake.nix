@@ -55,7 +55,20 @@
           # touches an unfree package.
           claudeCode = claude-code-nix.packages.${system}.default;
 
-          sbx = agent-sandbox.lib.${system};
+          # agent-sandbox with one patch to its proxy: git's smart-HTTP fetch
+          # is a POST, so under the GET/HEAD floor (see baselineDomains)
+          # `git clone https://…` fails on every host. The patch lets through
+          # a POST to …/git-upload-pack wherever GET is granted; push
+          # (git-receive-pack) stays refused. The source is patched rather
+          # than the proxy overridden because agent-sandbox builds its proxy
+          # internally, with no argument to replace it. Evaluated with
+          # agent-sandbox's own nixpkgs, exactly as its `lib` output is, so
+          # nothing but the proxy changes. Drop this if upstream takes it.
+          sbx = import (pkgs.applyPatches {
+            name    = "agent-sandbox-git-fetch";
+            src     = agent-sandbox;
+            patches = [ ./proxy-git-fetch.patch ];
+          }) { pkgs = import agent-sandbox.inputs.nixpkgs { inherit system; }; };
 
           # agent-sandbox's commonTools carries git but not jj. Since the
           # sandbox launches with `env -i`, nothing on the host PATH carries
@@ -164,6 +177,42 @@
           # its first snapshot would record them all as deleted. A declared
           # path that does not exist refuses the launch, so the fallback is
           # the launch directory, which is bound read-write already.
+          # What every sandboxed session is told about the sandbox it runs in,
+          # whatever the project. Through the launcher rather than memory,
+          # which is per project, or ~/.claude/CLAUDE.md, which the host
+          # `claude` reads too. Its purpose is economy, not enforcement: the
+          # policy holds whatever the agent believes, but an agent that does
+          # not know it spends tokens rediscovering it.
+          sandboxPrompt = pkgs.writeText "agent-sandbox-prompt.md" ''
+            # You are running inside a sandbox
+
+            - **Reading is open.** GET and HEAD reach every host. Look up
+              documentation, source and issues whenever it helps, without
+              asking first.
+            - **One POST is allowed: git's fetch.** `git clone`/`fetch` over
+              HTTPS POSTs to `…/git-upload-pack`, and the proxy lets exactly
+              that through on any host (path *and* git's content type). Every
+              other POST, PUT, PATCH or DELETE is refused, git push
+              (`…/git-receive-pack`) included.
+            - **Never try to change anything outside the sandbox.** No pushes,
+              no issues, comments or pull requests, no publishing, no form
+              submissions, no API writes. The proxy refuses them anyway, so
+              attempting one only burns tokens. When
+              a task needs an outside change, prepare it and tell the user what
+              to run.
+            - **A 403 is not always the proxy.** Many sites refuse requests
+              themselves (crates.io without a User-Agent, a storage bucket
+              asked for a listing). The proxy's refusal is bare: `403`,
+              `Content-Length: 0`, no `Server` header, no body. Anything else
+              came from the site. Check with `curl -D -` before concluding the
+              sandbox blocked it.
+            - **Nix is available.** You have the host Nix daemon and store, and
+              any tool missing from PATH is one `nix shell nixpkgs#<pkg> -c
+              <cmd>` away (`nixpkgs` is pinned locally; `nixpkgs-unstable` also
+              resolves). Try that before concluding a tool is unavailable or
+              working around its absence.
+          '';
+
           hostWrapper = sandbox:
             pkgs.writeShellScriptBin "claude-sandboxed" ''
               name=$(${gitBin} config user.name  || true)
@@ -194,7 +243,8 @@
               fi
               export AGENT_JJ_DIR
 
-              exec ${sandbox}/bin/claude-sandboxed "$@"
+              exec ${sandbox}/bin/claude-sandboxed \
+                --append-system-prompt-file ${sandboxPrompt} "$@"
             '';
 
           mkClaudeSandboxed =

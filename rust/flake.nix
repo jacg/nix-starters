@@ -56,7 +56,9 @@
               pkgs.just           # Command runner
             ];
 
-            # Shell configuration
+            # Shell configuration. The prompt and aliases take effect only
+            # under `nix develop`: direnv takes environment variables from
+            # shellHook, but not aliases, and not PS1.
             shellHook = ''
               # Customize prompt
               export PS1="rust devshell> "

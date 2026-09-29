@@ -15,7 +15,7 @@
     flake-utils .url = "github:numtide/flake-utils";
     # Support for legacy nix-shell
     flake-compat = {
-      url   = "github:edolstra/flake-compat";
+      url   = "github:NixOS/flake-compat";
       flake = false;
     };
   };

@@ -60,13 +60,8 @@
               zstd               # libzstd.so.1
             ];
 
-        in
-          rec {
-
-            #devShell = self.devShells.${ system }.python314; # does not need `rec`
-            devShell = devShells.python314;
-
-            devShells =
+            # ----- One shell for each Python version -------------------------
+            shells =
               builtins.listToAttrs (
                 builtins.map (
                   pythonVersion: {
@@ -98,6 +93,10 @@
                   }
                 ) [ "python312" "python313" "python314" ]
               );
+
+        in
+          {
+            devShells = shells // { default = shells.python314; };
           }
       );
 }

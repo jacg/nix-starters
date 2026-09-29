@@ -1,4 +1,15 @@
-# -*-Makefile-*-
+# Run the tests (the default); any arguments are passed on to nextest
+test *args:
+     cargo nextest run {{args}}
 
-test colours='':
-     cargo {{colours}} nextest run
+# Lint
+clippy:
+     cargo clippy --all-targets
+
+# Keep checking in the background as you edit
+watch:
+     bacon
+
+# Everything that `nix flake check` checks
+check:
+     nix flake check

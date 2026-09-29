@@ -46,7 +46,7 @@
           };
         in
           {
-            devShell = pkgs.mkShell {
+            devShells.default = pkgs.mkShell {
               name = "my-rust-project";
 
               packages = [

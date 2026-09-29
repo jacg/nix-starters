@@ -86,7 +86,7 @@ to disable the environment.
 
 ### Specifying dependencies
 
-The details will vary to some extent from language to language. Broadly speaking, add dependencies to `buildInputs` in `devShell` set inside `flake.nix`.
+The details will vary to some extent from language to language. Broadly speaking, add dependencies to `packages` in the `devShells.default` set inside `flake.nix`.
 
 ## Take your toolset with you: home-manager
 

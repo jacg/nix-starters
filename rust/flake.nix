@@ -7,11 +7,11 @@
 
   inputs = {
     # Version pinning is managed in flake.lock.
-    # Upgrading can be done with `nix flake lock --update input <input-name>`
+    # Upgrading can be done with `nix flake update <input-name>`
     #
-    #    nix flake lock --update-input nixpkgs
+    #    nix flake update nixpkgs
     nixpkgs     .url = "github:nixos/nixpkgs/nixos-26.05"; # nix flake update nixpkgs
-    rust-overlay.url = "github:oxalica/rust-overlay";      # nix flake update update rust-overlay
+    rust-overlay.url = "github:oxalica/rust-overlay";      # nix flake update rust-overlay
     flake-utils .url = "github:numtide/flake-utils";
     # Support for legacy nix-shell
     flake-compat = {
@@ -67,7 +67,7 @@
 
               # Enable rust-analyzer support (requires rust-src component in rust-toolchain.toml)
               RUST_SRC_PATH = "${pkgs.rust-tools}/lib/rustlib/src/rust/library";
-              # If version unavailable, try `nix flake lock --update input rust-overlay`
+              # If version unavailable, try `nix flake update rust-overlay`
             };
           }
       );

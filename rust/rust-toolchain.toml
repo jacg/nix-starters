@@ -4,10 +4,10 @@
 
 # You may need to run
 #
-#   nix flake lock --update-input rust-overlay
+#   nix flake update rust-overlay
 #
 # when changing these to more recent versions
-channel = "1.96.1" # nix flake lock --update input rust-overlay
+channel = "1.96.1" # nix flake update rust-overlay
 #channel = "nightly-2024-07-21"
 
 # see https://rust-lang.github.io/rustup/concepts/profiles.html

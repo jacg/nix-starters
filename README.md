@@ -135,5 +135,5 @@ sandbox it is built on.
 The versions of all the tools and dependencies are pinned: their exact versions are specified in `flake.lock`. Upgrading can be done with something like:
 
 ``` nix
-nix flake lock --update-input nixpkgs
+nix flake update nixpkgs
 ```

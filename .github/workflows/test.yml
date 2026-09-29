@@ -67,6 +67,20 @@ jobs:
           nix_path: nixpkgs=channel:nixos-25.05
       - name: Test in nix-shell
         run: nix-shell python/shell.nix --argstr py ${{ matrix.py }} --run 'cd python && pytest --color=yes -v'
+  Typst:
+    if: "! contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-15]
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: cachix/install-nix-action@v31.10.6
+      - name: Build the PDF
+        run: cd typst && nix --extra-experimental-features nix-command --extra-experimental-features flakes flake check
+      - name: Compile in nix develop
+        run: cd typst && nix --extra-experimental-features nix-command --extra-experimental-features flakes develop -c typst compile thingy.typ
 
 # TODO Rust bindgen
 # TODO Rust PyO3

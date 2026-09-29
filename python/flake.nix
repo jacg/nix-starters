@@ -11,27 +11,32 @@
 
   inputs = {
     # Version pinning is managed in flake.lock.
-    # Upgrading can be done with `nix flake lock --update input <input-name>`
+    # Upgrading can be done with `nix flake update <input-name>`
     #
-    #    nix flake lock --update-input nixpkgs
+    #    nix flake update nixpkgs
     nixpkgs     .url = "github:nixos/nixpkgs/nixos-26.05"; # nix flake update nixpkgs
-    flake-utils .url = "github:numtide/flake-utils";
     flake-compat = {
-      url = "github:edolstra/flake-compat";
+      url = "github:NixOS/flake-compat";
       flake = false;
     };
 
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }:
+  outputs = { nixpkgs, ... }:
+    let
+      # Systems for which outputs are provided (NB some packages in nixpkgs
+      # are not supported on some systems). Remove any that you don't need.
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "i686-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
 
-    # Option 1: try to support each default system
-    flake-utils.lib.eachDefaultSystem # NB Some packages in nixpkgs are not supported on some systems
+      forEachSystem = f: nixpkgs.lib.genAttrs systems (system: f (perSystem system));
 
-    # Option 2: try to support selected systems
-    # flake-utils.lib.eachSystem ["x86_64-linux" "i686-linux" "aarch64-linux" "x86_64-darwin"]
-      (system:
-
+      perSystem = system:
         let pkgs = import nixpkgs {
               inherit system;
               # Any overlays you need can go here
@@ -60,13 +65,8 @@
               zstd               # libzstd.so.1
             ];
 
-        in
-          rec {
-
-            #devShell = self.devShells.${ system }.python314; # does not need `rec`
-            devShell = devShells.python314;
-
-            devShells =
+            # ----- One shell for each Python version -------------------------
+            shells =
               builtins.listToAttrs (
                 builtins.map (
                   pythonVersion: {
@@ -79,6 +79,9 @@
                         pkgs.uv         # escape hatch rung 2: anything on PyPI
                         pkgs.micromamba # escape hatch rung 3: needs nix-ld, see README
                       ];
+                      # The prompt and aliases take effect only under `nix develop`:
+                      # direnv takes environment variables from shellHook, but not
+                      # aliases, and not PS1.
                       shellHook = ''
                         export PS1="${pythonVersion} devshell> "
 
@@ -98,6 +101,13 @@
                   }
                 ) [ "python312" "python313" "python314" ]
               );
-          }
-      );
+
+        in
+          {
+            devShells = shells // { default = shells.python314; };
+          };
+    in
+      {
+        devShells = forEachSystem (s: s.devShells);
+      };
 }

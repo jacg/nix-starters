@@ -1,8 +1,12 @@
 {
-  description = "Typst user environment";
+  description = "Typst development environment";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
+    # Version pinning is managed in flake.lock.
+    # Upgrading can be done with `nix flake update <input-name>`
+    #
+    #    nix flake update nixpkgs
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05"; # nix flake update nixpkgs
   };
 
   outputs = { nixpkgs, ... }:

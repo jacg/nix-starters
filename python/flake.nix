@@ -1,6 +1,5 @@
 # =============================================================================
 # This flake provides a Python development environment tooling.
-# Legacy nix-shell support is available through the wrapper in `shell.nix`.
 # =============================================================================
 
 # TODO Hacking around the Qt problems
@@ -15,11 +14,6 @@
     #
     #    nix flake update nixpkgs
     nixpkgs     .url = "github:nixos/nixpkgs/nixos-26.05"; # nix flake update nixpkgs
-    flake-compat = {
-      url = "github:NixOS/flake-compat";
-      flake = false;
-    };
-
   };
 
   outputs = { nixpkgs, ... }:

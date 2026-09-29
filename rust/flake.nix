@@ -1,6 +1,5 @@
 # =============================================================================
 # This flake provides a Rust development environment tooling.
-# Legacy nix-shell support is available through the wrapper in `shell.nix`.
 # =============================================================================
 {
   description = "Rust development environment";
@@ -14,11 +13,6 @@
     rust-overlay = {                                       # nix flake update rust-overlay
       url                    = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-    # Support for legacy nix-shell
-    flake-compat = {
-      url   = "github:NixOS/flake-compat";
-      flake = false;
     };
   };
 

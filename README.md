@@ -26,8 +26,6 @@ see [Sandboxed Claude Code](#sandboxed-claude-code) below.
 
   2. Nix has the experimental features `nix-command` and `flakes` enabled.
 
-     For a legacy version which works with older Nix, see the `legacy` branch. (TODO: not yet ready)
-
 + Helpful but not strictly necessary: [direnv](https://direnv.net/) is installed and enabled in your shell.
 
 ## Quickly bootstrap projects with development environments and dependencies in various languages

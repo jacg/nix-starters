@@ -18,7 +18,7 @@
 
     in
       {
-        devShell.${system} = pkgs.mkShell {
+        devShells.${system}.default = pkgs.mkShell {
           name = "typst-tools";
           packages = [
             pkgs.typst

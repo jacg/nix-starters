@@ -56,9 +56,7 @@
             TYPST_TS_GRAMMAR_DIR = "${grammars}/lib";
 
             shellHook = ''
-              echo "Typst tools loaded!"
-              echo "- Typst compiler: $(typst --version)"
-              echo "- Tinymist LSP server: $(tinymist --version)"
+              echo "Typst tools loaded: typst ${pkgs.typst.version}, tinymist ${pkgs.tinymist.version}"
             '';
 
           };

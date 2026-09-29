@@ -19,11 +19,7 @@
       forEachSystem = f: nixpkgs.lib.genAttrs systems (system: f (perSystem system));
 
       perSystem = system: rec {
-        pkgs = import nixpkgs {
-          inherit system;
-          config.allowUnfree = true;
-          overlays = [];
-        };
+        pkgs = nixpkgs.legacyPackages.${system};
 
         fonts = [ pkgs.fira pkgs.fira-code ];
       };

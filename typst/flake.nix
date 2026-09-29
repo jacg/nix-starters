@@ -40,6 +40,9 @@
             ] ++ fonts
               # Optional: used in justfile. Not available on macOS
               ++ pkgs.lib.optional pkgs.stdenv.hostPlatform.isLinux pkgs.evince;
+            # Make extra fonts available to typst and tinymist
+            TYPST_FONT_PATHS = pkgs.lib.makeSearchPath "share/fonts" fonts;
+
             shellHook = ''
               echo "Typst tools loaded!"
               echo "- Typst compiler: $(typst --version)"
@@ -47,8 +50,6 @@
 
               # Make tree-sitter grammar available to existing Emacs
               export TREE_SITTER_LIBRARY_PATH="${pkgs.tree-sitter.builtGrammars.tree-sitter-typst}/lib"
-              # Make extra fonts available to fontconfig
-              export FONTCONFIG_FILE="${pkgs.makeFontsConf { fontDirectories = fonts; }}"
             '';
 
           };

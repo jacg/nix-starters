@@ -1,7 +1,6 @@
-# -*-Makefile-*-
-
-test colours='':
-     pytest -v {{colours}}
+# Run the tests (the default); any arguments are passed on to pytest
+test *args:
+     pytest -v {{args}}
 
 # Something won't install, or installs but won't run? Start at the top.
 rescue:

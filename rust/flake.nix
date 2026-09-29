@@ -22,7 +22,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, rust-overlay, ... }:
+  outputs = { nixpkgs, rust-overlay, ... }:
     let
       # Systems for which outputs are provided (some packages may not be
       # available on all of them). Remove any that you don't need.

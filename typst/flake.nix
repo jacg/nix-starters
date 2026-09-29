@@ -38,6 +38,14 @@
             name = "typst-tools";
             packages = [
               pkgs.typst
+              # To get Typst Universe (@preview/...) packages from nixpkgs,
+              # pinned by flake.lock and available offline, rather than
+              # downloaded on first use, replace pkgs.typst with e.g.
+              #
+              #   (pkgs.typst.withPackages (p: [ p.cetz ]))
+              #
+              # Then only the packages listed are available to typst, and
+              # tinymist, which is not wrapped, does not see them.
               pkgs.tinymist # LSP server
               pkgs.just
             ] ++ fonts;

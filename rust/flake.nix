@@ -63,6 +63,10 @@
           };
           cargoLock.lockFile = ./Cargo.lock;
           useNextest = true; # Run the tests with nextest in checkPhase
+
+          # Crates that link to C libraries typically need something like
+          # nativeBuildInputs = [ pkgs.pkg-config ];
+          # buildInputs       = [ pkgs.openssl ];
         };
       };
     in
@@ -87,7 +91,7 @@
           default = pkgs.mkShell {
             name = "my-rust-project";
 
-            # The package's build inputs
+            # The package's build inputs, including any C libraries
             inputsFrom = [ package ];
 
             packages = [

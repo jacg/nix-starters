@@ -36,12 +36,10 @@
       forEachSystem = f: nixpkgs.lib.genAttrs systems (system: f (perSystem system));
 
       perSystem = system: rec {
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [ rust-overlay.overlays.default ];
-        };
+        pkgs     = nixpkgs.legacyPackages.${system};
+        rust-bin = rust-overlay.lib.mkRustBin { } pkgs;
         # Our configured rust toolchain
-        toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+        toolchain = rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
       };
     in
       {

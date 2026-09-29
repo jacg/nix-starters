@@ -15,7 +15,6 @@
       url                    = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    flake-utils .url = "github:numtide/flake-utils";
     # Support for legacy nix-shell
     flake-compat = {
       url   = "github:NixOS/flake-compat";
@@ -23,55 +22,57 @@
     };
   };
 
-  outputs = { self, nixpkgs, rust-overlay, flake-utils, ... }:
-    # System selection options:
-    # 1. All default systems (some packages may not be available)
-    flake-utils.lib.eachDefaultSystem
-    # 2. Selected systems only:
-    # flake-utils.lib.eachSystem [
-    #   "x86_64-linux"
-    #   "aarch64-linux"
-    #   "x86_64-darwin"
-    # ]
-      (system:
-        let
-          pkgs = import nixpkgs {
-            inherit system;
-            overlays = [
-              # Add rust-overlay
-              rust-overlay.overlays.default
+  outputs = { self, nixpkgs, rust-overlay, ... }:
+    let
+      # Systems for which outputs are provided (some packages may not be
+      # available on all of them). Remove any that you don't need.
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
 
-              # Configure custom rust toolchain
-              (final: prev: {
-                rust-tools = final.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
-              })
+      forEachSystem = f: nixpkgs.lib.genAttrs systems (system: f (pkgsFor system));
+
+      pkgsFor = system: import nixpkgs {
+        inherit system;
+        overlays = [
+          # Add rust-overlay
+          rust-overlay.overlays.default
+
+          # Configure custom rust toolchain
+          (final: prev: {
+            rust-tools = final.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+          })
+        ];
+      };
+    in
+      {
+        devShells = forEachSystem (pkgs: {
+          default = pkgs.mkShell {
+            name = "my-rust-project";
+
+            packages = [
+              pkgs.rust-tools     # Our configured rust toolchain
+              pkgs.cargo-nextest  # Modern test runner
+              pkgs.bacon          # Background rust code checker
+              pkgs.just           # Command runner
             ];
+
+            # Shell configuration
+            shellHook = ''
+              # Customize prompt
+              export PS1="rust devshell> "
+
+              # You could define aliases here
+              alias testme='just test'
+            '';
+
+            # Enable rust-analyzer support (requires rust-src component in rust-toolchain.toml)
+            RUST_SRC_PATH = "${pkgs.rust-tools}/lib/rustlib/src/rust/library";
+            # If version unavailable, try `nix flake update rust-overlay`
           };
-        in
-          {
-            devShells.default = pkgs.mkShell {
-              name = "my-rust-project";
-
-              packages = [
-                pkgs.rust-tools     # Our configured rust toolchain
-                pkgs.cargo-nextest  # Modern test runner
-                pkgs.bacon          # Background rust code checker
-                pkgs.just           # Command runner
-              ];
-
-              # Shell configuration
-              shellHook = ''
-                # Customize prompt
-                export PS1="rust devshell> "
-
-                # You could define aliases here
-                alias testme='just test'
-              '';
-
-              # Enable rust-analyzer support (requires rust-src component in rust-toolchain.toml)
-              RUST_SRC_PATH = "${pkgs.rust-tools}/lib/rustlib/src/rust/library";
-              # If version unavailable, try `nix flake update rust-overlay`
-            };
-          }
-      );
+        });
+      };
 }

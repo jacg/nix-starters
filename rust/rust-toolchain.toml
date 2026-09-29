@@ -12,10 +12,10 @@ channel = "1.96.1" # nix flake update rust-overlay
 
 # see https://rust-lang.github.io/rustup/concepts/profiles.html
 profile = "default"
-#profile = "minimal"
+#profile = "minimal" # add "clippy" and "rustfmt" to components if you use this
 
 
 # see https://rust-lang.github.io/rustup/concepts/components.html
-components = [ "rust-analyzer", "clippy", "rust-src", "rustfmt" ]
+components = [ "rust-analyzer", "rust-src" ] # on top of those in the profile
 
 #targets = [ "wasm32-unknown-unknown" ]

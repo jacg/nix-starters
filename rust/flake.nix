@@ -35,6 +35,8 @@
 
       forEachSystem = f: nixpkgs.lib.genAttrs systems (system: f (perSystem system));
 
+      cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
+
       perSystem = system: rec {
         pkgs     = nixpkgs.legacyPackages.${system};
         rust-bin = rust-overlay.lib.mkRustBin { } pkgs;
@@ -42,12 +44,51 @@
         # Our configured rust toolchain
         # If version unavailable, try `nix flake update rust-overlay`
         toolchain = rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+
+        # Build with our toolchain, rather than with nixpkgs' rustc
+        rustPlatform = pkgs.makeRustPlatform {
+          cargo = toolchain;
+          rustc = toolchain;
+        };
+
+        package = rustPlatform.buildRustPackage {
+          pname   = cargoToml.package.name;
+          version = cargoToml.package.version;
+          # Only these files affect the build: editing anything else will
+          # not trigger a rebuild. Add to this if you create tests/,
+          # benches/, build.rs, etc.
+          src = pkgs.lib.fileset.toSource {
+            root    = ./.;
+            fileset = pkgs.lib.fileset.unions [ ./Cargo.toml ./Cargo.lock ./src ];
+          };
+          cargoLock.lockFile = ./Cargo.lock;
+          useNextest = true; # Run the tests with nextest in checkPhase
+        };
       };
     in
       {
-        devShells = forEachSystem ({ pkgs, toolchain, ... }: {
+        packages = forEachSystem ({ package, ... }: {
+          default = package;
+        });
+
+        # `nix flake check`
+        checks = forEachSystem ({ package, ... }: {
+          # Building the package runs the tests
+          tests = package;
+          clippy = package.overrideAttrs (old: {
+            pname        = "${old.pname}-clippy";
+            buildPhase   = "cargo clippy --all-targets --offline -- --deny warnings";
+            installPhase = "touch $out";
+            doCheck      = false;
+          });
+        });
+
+        devShells = forEachSystem ({ pkgs, toolchain, package, ... }: {
           default = pkgs.mkShell {
             name = "my-rust-project";
+
+            # The package's build inputs
+            inputsFrom = [ package ];
 
             packages = [
               toolchain

@@ -79,6 +79,9 @@
                         pkgs.uv         # escape hatch rung 2: anything on PyPI
                         pkgs.micromamba # escape hatch rung 3: needs nix-ld, see README
                       ];
+                      # The prompt and aliases take effect only under `nix develop`:
+                      # direnv takes environment variables from shellHook, but not
+                      # aliases, and not PS1.
                       shellHook = ''
                         export PS1="${pythonVersion} devshell> "
 

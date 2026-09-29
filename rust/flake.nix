@@ -38,7 +38,9 @@
       perSystem = system: rec {
         pkgs     = nixpkgs.legacyPackages.${system};
         rust-bin = rust-overlay.lib.mkRustBin { } pkgs;
+
         # Our configured rust toolchain
+        # If version unavailable, try `nix flake update rust-overlay`
         toolchain = rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
       };
     in
@@ -62,10 +64,6 @@
               # You could define aliases here
               alias testme='just test'
             '';
-
-            # Enable rust-analyzer support (requires rust-src component in rust-toolchain.toml)
-            RUST_SRC_PATH = "${toolchain}/lib/rustlib/src/rust/library";
-            # If version unavailable, try `nix flake update rust-overlay`
           };
         });
       };

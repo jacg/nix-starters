@@ -22,7 +22,7 @@
 
   };
 
-  outputs = { self, nixpkgs, ... }:
+  outputs = { nixpkgs, ... }:
     let
       # Systems for which outputs are provided (NB some packages in nixpkgs
       # are not supported on some systems). Remove any that you don't need.

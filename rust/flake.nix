@@ -11,7 +11,10 @@
     #
     #    nix flake update nixpkgs
     nixpkgs     .url = "github:nixos/nixpkgs/nixos-26.05"; # nix flake update nixpkgs
-    rust-overlay.url = "github:oxalica/rust-overlay";      # nix flake update rust-overlay
+    rust-overlay = {                                       # nix flake update rust-overlay
+      url                    = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     flake-utils .url = "github:numtide/flake-utils";
     # Support for legacy nix-shell
     flake-compat = {

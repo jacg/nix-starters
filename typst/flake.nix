@@ -40,9 +40,8 @@
               pkgs.typst
               pkgs.tinymist # LSP server
               pkgs.just
-            ] ++ fonts
-              # Optional: used in justfile. Not available on macOS
-              ++ pkgs.lib.optional pkgs.stdenv.hostPlatform.isLinux pkgs.evince;
+            ] ++ fonts;
+
             # Make extra fonts available to typst and tinymist
             TYPST_FONT_PATHS = pkgs.lib.makeSearchPath "share/fonts" fonts;
 

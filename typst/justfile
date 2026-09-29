@@ -1,7 +1,4 @@
-# -*-Makefile-*-
-
-
-work file="thingy":
-    typst compile {{file}}.typ
-    evince {{file}}.pdf &
-    typst watch {{file}}.typ
+# Compile, open the PDF (in the default viewer, unless one is named), and
+# recompile on every save
+work file="thingy" viewer="":
+    typst watch {{file}}.typ --open {{viewer}}

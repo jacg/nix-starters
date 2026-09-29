@@ -15,7 +15,6 @@
     #
     #    nix flake update nixpkgs
     nixpkgs     .url = "github:nixos/nixpkgs/nixos-26.05"; # nix flake update nixpkgs
-    flake-utils .url = "github:numtide/flake-utils";
     flake-compat = {
       url = "github:NixOS/flake-compat";
       flake = false;
@@ -23,15 +22,21 @@
 
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }:
+  outputs = { self, nixpkgs, ... }:
+    let
+      # Systems for which outputs are provided (NB some packages in nixpkgs
+      # are not supported on some systems). Remove any that you don't need.
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "i686-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
 
-    # Option 1: try to support each default system
-    flake-utils.lib.eachDefaultSystem # NB Some packages in nixpkgs are not supported on some systems
+      forEachSystem = f: nixpkgs.lib.genAttrs systems (system: f (perSystem system));
 
-    # Option 2: try to support selected systems
-    # flake-utils.lib.eachSystem ["x86_64-linux" "i686-linux" "aarch64-linux" "x86_64-darwin"]
-      (system:
-
+      perSystem = system:
         let pkgs = import nixpkgs {
               inherit system;
               # Any overlays you need can go here
@@ -97,6 +102,9 @@
         in
           {
             devShells = shells // { default = shells.python314; };
-          }
-      );
+          };
+    in
+      {
+        devShells = forEachSystem (s: s.devShells);
+      };
 }

@@ -26,16 +26,19 @@
         pkgs = nixpkgs.legacyPackages.${system};
 
         fonts = [ pkgs.fira pkgs.fira-code ];
+
+        # tree-sitter grammar for Emacs' typst-ts-mode, as Emacs wants it:
+        # lib/libtree-sitter-typst.so
+        grammars = pkgs.emacs.pkgs.treesit-grammars.with-grammars (g: [ g.tree-sitter-typst ]);
       };
     in
       {
-        devShells = forEachSystem ({ pkgs, fonts, ... }: {
+        devShells = forEachSystem ({ pkgs, fonts, grammars, ... }: {
           default = pkgs.mkShell {
             name = "typst-tools";
             packages = [
               pkgs.typst
               pkgs.tinymist # LSP server
-              pkgs.tree-sitter.builtGrammars.tree-sitter-typst # Grammar for Emacs typst-ts-mode
               pkgs.just
             ] ++ fonts
               # Optional: used in justfile. Not available on macOS
@@ -43,13 +46,19 @@
             # Make extra fonts available to typst and tinymist
             TYPST_FONT_PATHS = pkgs.lib.makeSearchPath "share/fonts" fonts;
 
+            # Emacs does not look for tree-sitter grammars in any environment
+            # variable, so tell it about this one in your Emacs configuration:
+            #
+            #   (when-let ((dir (getenv "TYPST_TS_GRAMMAR_DIR")))
+            #     (add-to-list 'treesit-extra-load-path dir))
+            #
+            # With envrc-mode, the variable is visible in this project's buffers.
+            TYPST_TS_GRAMMAR_DIR = "${grammars}/lib";
+
             shellHook = ''
               echo "Typst tools loaded!"
               echo "- Typst compiler: $(typst --version)"
               echo "- Tinymist LSP server: $(tinymist --version)"
-
-              # Make tree-sitter grammar available to existing Emacs
-              export TREE_SITTER_LIBRARY_PATH="${pkgs.tree-sitter.builtGrammars.tree-sitter-typst}/lib"
             '';
 
           };

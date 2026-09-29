@@ -33,28 +33,24 @@
         "aarch64-darwin"
       ];
 
-      forEachSystem = f: nixpkgs.lib.genAttrs systems (system: f (pkgsFor system));
+      forEachSystem = f: nixpkgs.lib.genAttrs systems (system: f (perSystem system));
 
-      pkgsFor = system: import nixpkgs {
-        inherit system;
-        overlays = [
-          # Add rust-overlay
-          rust-overlay.overlays.default
-
-          # Configure custom rust toolchain
-          (final: prev: {
-            rust-tools = final.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
-          })
-        ];
+      perSystem = system: rec {
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ rust-overlay.overlays.default ];
+        };
+        # Our configured rust toolchain
+        toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
       };
     in
       {
-        devShells = forEachSystem (pkgs: {
+        devShells = forEachSystem ({ pkgs, toolchain, ... }: {
           default = pkgs.mkShell {
             name = "my-rust-project";
 
             packages = [
-              pkgs.rust-tools     # Our configured rust toolchain
+              toolchain
               pkgs.cargo-nextest  # Modern test runner
               pkgs.bacon          # Background rust code checker
               pkgs.just           # Command runner
@@ -70,7 +66,7 @@
             '';
 
             # Enable rust-analyzer support (requires rust-src component in rust-toolchain.toml)
-            RUST_SRC_PATH = "${pkgs.rust-tools}/lib/rustlib/src/rust/library";
+            RUST_SRC_PATH = "${toolchain}/lib/rustlib/src/rust/library";
             # If version unavailable, try `nix flake update rust-overlay`
           };
         });

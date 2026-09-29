@@ -11,9 +11,9 @@
 
   inputs = {
     # Version pinning is managed in flake.lock.
-    # Upgrading can be done with `nix flake lock --update input <input-name>`
+    # Upgrading can be done with `nix flake update <input-name>`
     #
-    #    nix flake lock --update-input nixpkgs
+    #    nix flake update nixpkgs
     nixpkgs     .url = "github:nixos/nixpkgs/nixos-26.05"; # nix flake update nixpkgs
     flake-utils .url = "github:numtide/flake-utils";
     flake-compat = {

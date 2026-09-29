@@ -1,0 +1,13 @@
+# Configuration for cargo-nextest: https://nexte.st/docs/configuration/
+#
+# Select a profile other than `default` with
+#
+#    cargo nextest run --profile <name>
+
+[profile.default]
+# Report failures as they happen, and again at the end
+failure-output = "immediate-final"
+
+[profile.ci]
+# Run every test, rather than stopping at the first failure
+fail-fast = false

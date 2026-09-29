@@ -26,14 +26,34 @@
         pkgs = nixpkgs.legacyPackages.${system};
 
         fonts = [ pkgs.fira pkgs.fira-code ];
+        fontPaths = pkgs.lib.makeSearchPath "share/fonts" fonts;
 
         # tree-sitter grammar for Emacs' typst-ts-mode, as Emacs wants it:
         # lib/libtree-sitter-typst.so
         grammars = pkgs.emacs.pkgs.treesit-grammars.with-grammars (g: [ g.tree-sitter-typst ]);
+
+        # The PDF, as `nix build` makes it. Every file in the flake (i.e.
+        # every file tracked by git) is available to the document.
+        document = pkgs.runCommand "thingy.pdf" {
+          nativeBuildInputs = [ pkgs.typst ];
+          TYPST_FONT_PATHS  = fontPaths;
+        } ''
+          cd ${./.}
+          typst compile --ignore-system-fonts thingy.typ $out
+        '';
       };
     in
       {
-        devShells = forEachSystem ({ pkgs, fonts, grammars, ... }: {
+        packages = forEachSystem ({ document, ... }: {
+          default = document;
+        });
+
+        # `nix flake check`: does the document compile?
+        checks = forEachSystem ({ document, ... }: {
+          inherit document;
+        });
+
+        devShells = forEachSystem ({ pkgs, fonts, fontPaths, grammars, ... }: {
           default = pkgs.mkShell {
             name = "typst-tools";
             packages = [
@@ -51,7 +71,7 @@
             ] ++ fonts;
 
             # Make extra fonts available to typst and tinymist
-            TYPST_FONT_PATHS = pkgs.lib.makeSearchPath "share/fonts" fonts;
+            TYPST_FONT_PATHS = fontPaths;
 
             # Emacs does not look for tree-sitter grammars in any environment
             # variable, so tell it about this one in your Emacs configuration:

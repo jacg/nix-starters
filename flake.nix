@@ -6,6 +6,16 @@
       rust = {
         path = ./rust;
         description = "Rust project based on oxalica rust overlay";
+        welcomeText = ''
+          # Rust project
+
+          Names to change to your project's:
+
+          + `name` in `Cargo.toml` (the crate is called `rust`)
+          + `name` and `description` in `flake.nix`
+
+          Then `direnv allow` (or `nix develop`) and `just test`.
+        '';
       };
       python = {
         path = ./python;
